@@ -389,3 +389,4 @@ aiogram.exceptions.TelegramNetworkError: HTTP Client says - ClientConnectorError
 2026-04-02 16:08:00 | WARNING  | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8505340627)
 2026-04-02 16:09:01 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [None]
 2026-04-02 16:09:01 | WARNING  | aiogram.dispatcher | Sleep for 1.338003 seconds and try again... (tryings = 1, bot id = 8505340627)
+2026-04-02 16:09:23 | INFO     | aiogram.dispatcher | Connection established (tryings = 2, bot id = 8505340627)
