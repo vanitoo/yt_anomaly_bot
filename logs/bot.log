@@ -1,0 +1,391 @@
+2026-04-01 19:37:22 | INFO     | __main__ | Starting YouTube Anomaly Bot
+2026-04-01 19:37:22 | INFO     | __main__ | Database: sqlite+aiosqlite:///./data/bot.db
+2026-04-01 19:37:22 | INFO     | __main__ | Admin IDs: [123456789]
+2026-04-01 19:37:22 | INFO     | __main__ | Schedule: weekly
+2026-04-01 19:37:22 | INFO     | __main__ | Database tables ready.
+2026-04-01 20:14:38 | INFO     | __main__ | Starting YouTube Anomaly Bot
+2026-04-01 20:14:38 | INFO     | __main__ | Database: sqlite+aiosqlite:///./data/bot.db
+2026-04-01 20:14:38 | INFO     | __main__ | Admin IDs: [123456789]
+2026-04-01 20:14:38 | INFO     | __main__ | Schedule: weekly
+2026-04-01 20:14:38 | INFO     | __main__ | Database tables ready.
+2026-04-01 20:14:38 | INFO     | bot.jobs.scheduler | Scheduler: weekly (Monday 09:00 UTC)
+2026-04-01 20:14:38 | INFO     | apscheduler.scheduler | Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2026-04-01 20:14:38 | INFO     | apscheduler.scheduler | Added job "_run_analysis_job" to job store "default"
+2026-04-01 20:14:38 | INFO     | apscheduler.scheduler | Scheduler started
+2026-04-01 20:14:38 | INFO     | __main__ | Scheduler started.
+2026-04-01 20:14:38 | INFO     | __main__ | Bot is running. Waiting for updates...
+2026-04-01 20:14:38 | INFO     | aiogram.dispatcher | Start polling
+2026-04-01 20:15:00 | INFO     | aiogram.dispatcher | Polling stopped
+2026-04-01 20:15:00 | INFO     | __main__ | Bot stopped.
+2026-04-01 20:15:00 | INFO     | apscheduler.scheduler | Scheduler has been shut down
+2026-04-01 20:15:15 | INFO     | __main__ | Starting YouTube Anomaly Bot
+2026-04-01 20:15:15 | INFO     | __main__ | Database: sqlite+aiosqlite:///./data/bot.db
+2026-04-01 20:15:15 | INFO     | __main__ | Admin IDs: [319415227]
+2026-04-01 20:15:15 | INFO     | __main__ | Schedule: weekly
+2026-04-01 20:15:15 | INFO     | __main__ | Database tables ready.
+2026-04-01 20:15:15 | INFO     | bot.jobs.scheduler | Scheduler: weekly (Monday 09:00 UTC)
+2026-04-01 20:15:15 | INFO     | apscheduler.scheduler | Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2026-04-01 20:15:15 | INFO     | apscheduler.scheduler | Added job "_run_analysis_job" to job store "default"
+2026-04-01 20:15:15 | INFO     | apscheduler.scheduler | Scheduler started
+2026-04-01 20:15:15 | INFO     | __main__ | Scheduler started.
+2026-04-01 20:15:15 | INFO     | __main__ | Bot is running. Waiting for updates...
+2026-04-01 20:15:15 | INFO     | aiogram.dispatcher | Start polling
+2026-04-01 20:15:29 | INFO     | aiogram.dispatcher | Run polling for bot @VPNHours_Bot id=8505340627 - '@VPNHours_Bot'
+2026-04-01 20:16:19 | ERROR    | aiogram.event | Cause exception while process update id=559413515 by bot id=8505340627
+TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+Traceback (most recent call last):
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiohttp\connector.py", line 1025, in _wrap_create_connection
+    return await self._loop.create_connection(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\base_events.py", line 1113, in create_connection
+    transport, protocol = await self._create_connection_transport(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\base_events.py", line 1146, in _create_connection_transport
+    await waiter
+  File "C:\Program Files\Python311\Lib\asyncio\proactor_events.py", line 286, in _loop_reading
+    length = fut.result()
+             ^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\windows_events.py", line 854, in _poll
+    value = callback(transferred, key, ov)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\windows_events.py", line 494, in finish_recv
+    return ov.getresult()
+           ^^^^^^^^^^^^^^
+OSError: [WinError 121] Превышен таймаут семафора
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiogram\client\session\aiohttp.py", line 181, in make_request
+    async with session.post(
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiohttp\client.py", line 1197, in __aenter__
+    self._resp = await self._coro
+                 ^^^^^^^^^^^^^^^^
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiohttp\client.py", line 581, in _request
+    conn = await self._connector.connect(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiohttp\connector.py", line 544, in connect
+    proto = await self._create_connection(req, traces, timeout)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiohttp\connector.py", line 944, in _create_connection
+    _, proto = await self._create_direct_connection(req, traces, timeout)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiohttp\connector.py", line 1257, in _create_direct_connection
+    raise last_exc
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiohttp\connector.py", line 1226, in _create_direct_connection
+    transp, proto = await self._wrap_create_connection(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiohttp\connector.py", line 1033, in _wrap_create_connection
+    raise client_error(req.connection_key, exc) from exc
+aiohttp.client_exceptions.ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiogram\dispatcher\dispatcher.py", line 309, in _process_update
+    response = await self.feed_update(bot, update, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiogram\dispatcher\dispatcher.py", line 158, in feed_update
+    response = await self.update.wrap_outer_middleware(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiogram\dispatcher\middlewares\error.py", line 25, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiogram\dispatcher\middlewares\user_context.py", line 49, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiogram\fsm\middleware.py", line 42, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiogram\dispatcher\event\telegram.py", line 121, in trigger
+    return await wrapped_inner(event, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiogram\dispatcher\event\handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiogram\dispatcher\dispatcher.py", line 276, in _listen_update
+    return await self.propagate_event(update_type=update_type, event=event, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiogram\dispatcher\router.py", line 142, in propagate_event
+    return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiogram\dispatcher\router.py", line 137, in _wrapped
+    return await self._propagate_event(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiogram\dispatcher\router.py", line 170, in _propagate_event
+    response = await router.propagate_event(update_type=update_type, event=event, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiogram\dispatcher\router.py", line 142, in propagate_event
+    return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiogram\dispatcher\router.py", line 137, in _wrapped
+    return await self._propagate_event(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiogram\dispatcher\router.py", line 162, in _propagate_event
+    response = await observer.trigger(event, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiogram\dispatcher\event\telegram.py", line 121, in trigger
+    return await wrapped_inner(event, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiogram\dispatcher\event\handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "C:\project\yt_anomaly_bot\bot\handlers\start.py", line 54, in cmd_start
+    await message.answer(WELCOME_TEXT, parse_mode="HTML")
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiogram\methods\base.py", line 84, in emit
+    return await bot(self)
+           ^^^^^^^^^^^^^^^
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiogram\client\bot.py", line 485, in __call__
+    return await self.session(self, method, timeout=request_timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiogram\client\session\base.py", line 254, in __call__
+    return cast(TelegramType, await middleware(bot, method))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiogram\client\session\aiohttp.py", line 188, in make_request
+    raise TelegramNetworkError(method=method, message=f"{type(e).__name__}: {e}")
+aiogram.exceptions.TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+2026-04-01 20:16:35 | ERROR    | aiogram.event | Cause exception while process update id=559413514 by bot id=8505340627
+TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [None]
+Traceback (most recent call last):
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiohttp\connector.py", line 1025, in _wrap_create_connection
+    return await self._loop.create_connection(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\base_events.py", line 1113, in create_connection
+    transport, protocol = await self._create_connection_transport(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\base_events.py", line 1146, in _create_connection_transport
+    await waiter
+ConnectionAbortedError: SSL handshake is taking longer than 60.0 seconds: aborting the connection
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiogram\client\session\aiohttp.py", line 181, in make_request
+    async with session.post(
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiohttp\client.py", line 1197, in __aenter__
+    self._resp = await self._coro
+                 ^^^^^^^^^^^^^^^^
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiohttp\client.py", line 581, in _request
+    conn = await self._connector.connect(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiohttp\connector.py", line 544, in connect
+    proto = await self._create_connection(req, traces, timeout)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiohttp\connector.py", line 944, in _create_connection
+    _, proto = await self._create_direct_connection(req, traces, timeout)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiohttp\connector.py", line 1257, in _create_direct_connection
+    raise last_exc
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiohttp\connector.py", line 1226, in _create_direct_connection
+    transp, proto = await self._wrap_create_connection(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiohttp\connector.py", line 1033, in _wrap_create_connection
+    raise client_error(req.connection_key, exc) from exc
+aiohttp.client_exceptions.ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [None]
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiogram\dispatcher\dispatcher.py", line 309, in _process_update
+    response = await self.feed_update(bot, update, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiogram\dispatcher\dispatcher.py", line 158, in feed_update
+    response = await self.update.wrap_outer_middleware(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiogram\dispatcher\middlewares\error.py", line 25, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiogram\dispatcher\middlewares\user_context.py", line 49, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiogram\fsm\middleware.py", line 42, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiogram\dispatcher\event\telegram.py", line 121, in trigger
+    return await wrapped_inner(event, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiogram\dispatcher\event\handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiogram\dispatcher\dispatcher.py", line 276, in _listen_update
+    return await self.propagate_event(update_type=update_type, event=event, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiogram\dispatcher\router.py", line 142, in propagate_event
+    return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiogram\dispatcher\router.py", line 137, in _wrapped
+    return await self._propagate_event(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiogram\dispatcher\router.py", line 170, in _propagate_event
+    response = await router.propagate_event(update_type=update_type, event=event, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiogram\dispatcher\router.py", line 142, in propagate_event
+    return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiogram\dispatcher\router.py", line 137, in _wrapped
+    return await self._propagate_event(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiogram\dispatcher\router.py", line 162, in _propagate_event
+    response = await observer.trigger(event, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiogram\dispatcher\event\telegram.py", line 121, in trigger
+    return await wrapped_inner(event, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiogram\dispatcher\event\handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "C:\project\yt_anomaly_bot\bot\handlers\start.py", line 54, in cmd_start
+    await message.answer(WELCOME_TEXT, parse_mode="HTML")
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiogram\methods\base.py", line 84, in emit
+    return await bot(self)
+           ^^^^^^^^^^^^^^^
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiogram\client\bot.py", line 485, in __call__
+    return await self.session(self, method, timeout=request_timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiogram\client\session\base.py", line 254, in __call__
+    return cast(TelegramType, await middleware(bot, method))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\project\yt_anomaly_bot\.venv\Lib\site-packages\aiogram\client\session\aiohttp.py", line 188, in make_request
+    raise TelegramNetworkError(method=method, message=f"{type(e).__name__}: {e}")
+aiogram.exceptions.TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [None]
+2026-04-01 20:17:02 | INFO     | aiogram.dispatcher | Polling stopped
+2026-04-01 20:17:02 | INFO     | __main__ | Bot stopped.
+2026-04-01 20:17:02 | INFO     | apscheduler.scheduler | Scheduler has been shut down
+2026-04-01 20:17:02 | INFO     | aiogram.dispatcher | Polling stopped for bot @VPNHours_Bot id=8505340627 - '@VPNHours_Bot'
+2026-04-02 13:15:34 | INFO     | __main__ | Starting YouTube Anomaly Bot
+2026-04-02 13:15:34 | INFO     | __main__ | Database: sqlite+aiosqlite:///./data/bot.db
+2026-04-02 13:15:34 | INFO     | __main__ | Admin IDs: [319415227]
+2026-04-02 13:15:34 | INFO     | __main__ | Schedule: weekly
+2026-04-02 13:15:34 | INFO     | __main__ | Database tables ready.
+2026-04-02 13:15:34 | INFO     | bot.jobs.scheduler | Scheduler: weekly (Monday 09:00 UTC)
+2026-04-02 13:15:34 | INFO     | apscheduler.scheduler | Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2026-04-02 13:15:34 | INFO     | apscheduler.scheduler | Added job "_run_analysis_job" to job store "default"
+2026-04-02 13:15:34 | INFO     | apscheduler.scheduler | Scheduler started
+2026-04-02 13:15:34 | INFO     | __main__ | Scheduler started.
+2026-04-02 13:15:34 | INFO     | __main__ | Bot is running. Waiting for updates...
+2026-04-02 13:15:34 | INFO     | aiogram.dispatcher | Start polling
+2026-04-02 13:15:49 | INFO     | aiogram.dispatcher | Run polling for bot @VPNHours_Bot id=8505340627 - '@VPNHours_Bot'
+2026-04-02 13:17:38 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - Request timeout error
+2026-04-02 13:17:38 | WARNING  | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8505340627)
+2026-04-02 13:18:39 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [None]
+2026-04-02 13:18:39 | WARNING  | aiogram.dispatcher | Sleep for 1.190608 seconds and try again... (tryings = 1, bot id = 8505340627)
+2026-04-02 13:19:00 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+2026-04-02 13:19:00 | WARNING  | aiogram.dispatcher | Sleep for 1.527246 seconds and try again... (tryings = 2, bot id = 8505340627)
+2026-04-02 13:19:21 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+2026-04-02 13:19:21 | WARNING  | aiogram.dispatcher | Sleep for 2.127346 seconds and try again... (tryings = 3, bot id = 8505340627)
+2026-04-02 13:20:23 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [None]
+2026-04-02 13:20:23 | WARNING  | aiogram.dispatcher | Sleep for 2.861244 seconds and try again... (tryings = 4, bot id = 8505340627)
+2026-04-02 13:21:26 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [None]
+2026-04-02 13:21:26 | WARNING  | aiogram.dispatcher | Sleep for 3.592257 seconds and try again... (tryings = 5, bot id = 8505340627)
+2026-04-02 13:21:49 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+2026-04-02 13:21:49 | WARNING  | aiogram.dispatcher | Sleep for 4.640386 seconds and try again... (tryings = 6, bot id = 8505340627)
+2026-04-02 13:22:53 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [None]
+2026-04-02 13:22:53 | WARNING  | aiogram.dispatcher | Sleep for 4.953938 seconds and try again... (tryings = 7, bot id = 8505340627)
+2026-04-02 13:23:19 | INFO     | aiogram.dispatcher | Connection established (tryings = 8, bot id = 8505340627)
+2026-04-02 13:31:19 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientOSError: [WinError 121] Превышен таймаут семафора
+2026-04-02 13:31:19 | WARNING  | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8505340627)
+2026-04-02 13:32:20 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [None]
+2026-04-02 13:32:20 | WARNING  | aiogram.dispatcher | Sleep for 1.505868 seconds and try again... (tryings = 1, bot id = 8505340627)
+2026-04-02 13:32:42 | INFO     | aiogram.dispatcher | Connection established (tryings = 2, bot id = 8505340627)
+2026-04-02 13:40:42 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientOSError: [WinError 121] Превышен таймаут семафора
+2026-04-02 13:40:42 | WARNING  | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8505340627)
+2026-04-02 13:41:43 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [None]
+2026-04-02 13:41:43 | WARNING  | aiogram.dispatcher | Sleep for 1.490214 seconds and try again... (tryings = 1, bot id = 8505340627)
+2026-04-02 13:42:44 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [None]
+2026-04-02 13:42:44 | WARNING  | aiogram.dispatcher | Sleep for 1.917712 seconds and try again... (tryings = 2, bot id = 8505340627)
+2026-04-02 13:43:46 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [None]
+2026-04-02 13:43:46 | WARNING  | aiogram.dispatcher | Sleep for 2.375937 seconds and try again... (tryings = 3, bot id = 8505340627)
+2026-04-02 13:44:09 | INFO     | aiogram.dispatcher | Connection established (tryings = 4, bot id = 8505340627)
+2026-04-02 13:50:55 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientOSError: [WinError 121] Превышен таймаут семафора
+2026-04-02 13:50:55 | WARNING  | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8505340627)
+2026-04-02 13:51:56 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [None]
+2026-04-02 13:51:56 | WARNING  | aiogram.dispatcher | Sleep for 1.253721 seconds and try again... (tryings = 1, bot id = 8505340627)
+2026-04-02 13:52:17 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+2026-04-02 13:52:17 | WARNING  | aiogram.dispatcher | Sleep for 1.735062 seconds and try again... (tryings = 2, bot id = 8505340627)
+2026-04-02 13:52:39 | INFO     | aiogram.dispatcher | Connection established (tryings = 3, bot id = 8505340627)
+2026-04-02 14:00:39 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientOSError: [WinError 121] Превышен таймаут семафора
+2026-04-02 14:00:39 | WARNING  | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8505340627)
+2026-04-02 14:01:00 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+2026-04-02 14:01:00 | WARNING  | aiogram.dispatcher | Sleep for 1.446837 seconds and try again... (tryings = 1, bot id = 8505340627)
+2026-04-02 14:01:20 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+2026-04-02 14:01:20 | WARNING  | aiogram.dispatcher | Sleep for 1.949115 seconds and try again... (tryings = 2, bot id = 8505340627)
+2026-04-02 14:01:43 | INFO     | aiogram.dispatcher | Connection established (tryings = 3, bot id = 8505340627)
+2026-04-02 14:09:43 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientOSError: [WinError 121] Превышен таймаут семафора
+2026-04-02 14:09:43 | WARNING  | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8505340627)
+2026-04-02 14:10:03 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+2026-04-02 14:10:03 | WARNING  | aiogram.dispatcher | Sleep for 1.235778 seconds and try again... (tryings = 1, bot id = 8505340627)
+2026-04-02 14:10:25 | INFO     | aiogram.dispatcher | Connection established (tryings = 2, bot id = 8505340627)
+2026-04-02 14:18:25 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientOSError: [WinError 121] Превышен таймаут семафора
+2026-04-02 14:18:25 | WARNING  | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8505340627)
+2026-04-02 14:18:46 | INFO     | aiogram.dispatcher | Connection established (tryings = 1, bot id = 8505340627)
+2026-04-02 14:26:47 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientOSError: [WinError 121] Превышен таймаут семафора
+2026-04-02 14:26:47 | WARNING  | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8505340627)
+2026-04-02 14:27:07 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+2026-04-02 14:27:07 | WARNING  | aiogram.dispatcher | Sleep for 1.387502 seconds and try again... (tryings = 1, bot id = 8505340627)
+2026-04-02 14:27:28 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+2026-04-02 14:27:28 | WARNING  | aiogram.dispatcher | Sleep for 1.595066 seconds and try again... (tryings = 2, bot id = 8505340627)
+2026-04-02 14:27:50 | INFO     | aiogram.dispatcher | Connection established (tryings = 3, bot id = 8505340627)
+2026-04-02 14:35:50 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientOSError: [WinError 121] Превышен таймаут семафора
+2026-04-02 14:35:50 | WARNING  | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8505340627)
+2026-04-02 14:36:51 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [None]
+2026-04-02 14:36:51 | WARNING  | aiogram.dispatcher | Sleep for 1.246872 seconds and try again... (tryings = 1, bot id = 8505340627)
+2026-04-02 14:37:11 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+2026-04-02 14:37:11 | WARNING  | aiogram.dispatcher | Sleep for 1.618051 seconds and try again... (tryings = 2, bot id = 8505340627)
+2026-04-02 14:38:13 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [None]
+2026-04-02 14:38:13 | WARNING  | aiogram.dispatcher | Sleep for 1.989772 seconds and try again... (tryings = 3, bot id = 8505340627)
+2026-04-02 14:39:15 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [None]
+2026-04-02 14:39:15 | WARNING  | aiogram.dispatcher | Sleep for 2.509241 seconds and try again... (tryings = 4, bot id = 8505340627)
+2026-04-02 14:39:38 | INFO     | aiogram.dispatcher | Connection established (tryings = 5, bot id = 8505340627)
+2026-04-02 14:47:38 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientOSError: [WinError 121] Превышен таймаут семафора
+2026-04-02 14:47:38 | WARNING  | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8505340627)
+2026-04-02 14:47:58 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+2026-04-02 14:47:58 | WARNING  | aiogram.dispatcher | Sleep for 1.388848 seconds and try again... (tryings = 1, bot id = 8505340627)
+2026-04-02 14:48:19 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+2026-04-02 14:48:19 | WARNING  | aiogram.dispatcher | Sleep for 1.715395 seconds and try again... (tryings = 2, bot id = 8505340627)
+2026-04-02 14:48:41 | INFO     | aiogram.dispatcher | Connection established (tryings = 3, bot id = 8505340627)
+2026-04-02 14:56:41 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientOSError: [WinError 121] Превышен таймаут семафора
+2026-04-02 14:56:41 | WARNING  | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8505340627)
+2026-04-02 14:57:01 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+2026-04-02 14:57:01 | WARNING  | aiogram.dispatcher | Sleep for 1.347971 seconds and try again... (tryings = 1, bot id = 8505340627)
+2026-04-02 14:57:22 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+2026-04-02 14:57:22 | WARNING  | aiogram.dispatcher | Sleep for 1.816346 seconds and try again... (tryings = 2, bot id = 8505340627)
+2026-04-02 14:58:05 | INFO     | aiogram.dispatcher | Connection established (tryings = 3, bot id = 8505340627)
+2026-04-02 15:05:33 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientOSError: [WinError 121] Превышен таймаут семафора
+2026-04-02 15:05:33 | WARNING  | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8505340627)
+2026-04-02 15:05:54 | INFO     | aiogram.dispatcher | Connection established (tryings = 1, bot id = 8505340627)
+2026-04-02 15:13:55 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientOSError: [WinError 121] Превышен таймаут семафора
+2026-04-02 15:13:55 | WARNING  | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8505340627)
+2026-04-02 15:14:56 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [None]
+2026-04-02 15:14:56 | WARNING  | aiogram.dispatcher | Sleep for 1.220557 seconds and try again... (tryings = 1, bot id = 8505340627)
+2026-04-02 15:15:17 | INFO     | aiogram.dispatcher | Connection established (tryings = 2, bot id = 8505340627)
+2026-04-02 15:23:19 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientOSError: [WinError 121] Превышен таймаут семафора
+2026-04-02 15:23:19 | WARNING  | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8505340627)
+2026-04-02 15:24:14 | INFO     | aiogram.dispatcher | Connection established (tryings = 1, bot id = 8505340627)
+2026-04-02 15:31:42 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientOSError: [WinError 121] Превышен таймаут семафора
+2026-04-02 15:31:42 | WARNING  | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8505340627)
+2026-04-02 15:32:02 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+2026-04-02 15:32:02 | WARNING  | aiogram.dispatcher | Sleep for 1.461722 seconds and try again... (tryings = 1, bot id = 8505340627)
+2026-04-02 15:32:24 | INFO     | aiogram.dispatcher | Connection established (tryings = 2, bot id = 8505340627)
+2026-04-02 15:40:24 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientOSError: [WinError 121] Превышен таймаут семафора
+2026-04-02 15:40:24 | WARNING  | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8505340627)
+2026-04-02 15:41:25 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [None]
+2026-04-02 15:41:25 | WARNING  | aiogram.dispatcher | Sleep for 1.229033 seconds and try again... (tryings = 1, bot id = 8505340627)
+2026-04-02 15:41:47 | INFO     | aiogram.dispatcher | Connection established (tryings = 2, bot id = 8505340627)
+2026-04-02 15:49:46 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientOSError: [WinError 121] Превышен таймаут семафора
+2026-04-02 15:49:46 | WARNING  | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8505340627)
+2026-04-02 15:50:48 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [None]
+2026-04-02 15:50:48 | WARNING  | aiogram.dispatcher | Sleep for 1.392791 seconds and try again... (tryings = 1, bot id = 8505340627)
+2026-04-02 15:51:49 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [None]
+2026-04-02 15:51:49 | WARNING  | aiogram.dispatcher | Sleep for 1.840662 seconds and try again... (tryings = 2, bot id = 8505340627)
+2026-04-02 15:52:10 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+2026-04-02 15:52:10 | WARNING  | aiogram.dispatcher | Sleep for 2.421287 seconds and try again... (tryings = 3, bot id = 8505340627)
+2026-04-02 15:52:32 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Превышен таймаут семафора]
+2026-04-02 15:52:32 | WARNING  | aiogram.dispatcher | Sleep for 3.214774 seconds and try again... (tryings = 4, bot id = 8505340627)
+2026-04-02 15:52:55 | INFO     | aiogram.dispatcher | Connection established (tryings = 5, bot id = 8505340627)
+2026-04-02 16:00:56 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientOSError: [WinError 121] Превышен таймаут семафора
+2026-04-02 16:00:56 | WARNING  | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8505340627)
+2026-04-02 16:01:24 | INFO     | aiogram.dispatcher | Connection established (tryings = 1, bot id = 8505340627)
+2026-04-02 16:08:00 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ServerDisconnectedError: Server disconnected
+2026-04-02 16:08:00 | WARNING  | aiogram.dispatcher | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8505340627)
+2026-04-02 16:09:01 | ERROR    | aiogram.dispatcher | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [None]
+2026-04-02 16:09:01 | WARNING  | aiogram.dispatcher | Sleep for 1.338003 seconds and try again... (tryings = 1, bot id = 8505340627)
