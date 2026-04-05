@@ -66,6 +66,37 @@ class TestExtractUsername:
         assert client._extract_username("https://youtube.com/channel/UCxxxx") is None
 
 
+class TestExtractVideoId:
+    def test_watch_url(self, client):
+        assert client._extract_video_id("https://www.youtube.com/watch?v=dQw4w9WgXcQ") == "dQw4w9WgXcQ"
+
+    def test_youtu_be_url(self, client):
+        assert client._extract_video_id("https://youtu.be/dQw4w9WgXcQ") == "dQw4w9WgXcQ"
+
+    def test_non_video_url_returns_none(self, client):
+        assert client._extract_video_id("https://youtube.com/@MrBeast") is None
+
+    def test_channel_url_returns_none(self, client):
+        assert client._extract_video_id("https://youtube.com/channel/UCxxxx") is None
+
+
+class TestExtractPlaylistId:
+    def test_playlist_url(self, client):
+        result = client._extract_playlist_id(
+            "https://www.youtube.com/playlist?list=PLxxxxxxxxxxxxxxxxxxxxxxxx"
+        )
+        assert result == "PLxxxxxxxxxxxxxxxxxxxxxxxx"
+
+    def test_watch_url_with_list_param(self, client):
+        result = client._extract_playlist_id(
+            "https://youtube.com/watch?v=abc&list=PLyyyy"
+        )
+        assert result == "PLyyyy"
+
+    def test_non_playlist_url_returns_none(self, client):
+        assert client._extract_playlist_id("https://youtube.com/@MrBeast") is None
+
+
 class TestParseDuration:
     def test_full_duration(self, client):
         assert client._parse_duration("PT1H2M3S") == 3723

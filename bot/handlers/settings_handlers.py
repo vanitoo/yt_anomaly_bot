@@ -39,6 +39,7 @@ async def cmd_settings(message: Message) -> None:
         f"📆 Окно анализа: <b>{all_settings.get('period_days')}</b> дн.",
         f"🔬 Метод baseline: <b>{all_settings.get('baseline_method')}</b>",
         f"🩳 Shorts: <b>{all_settings.get('include_shorts')}</b>",
+        f"🔁 Повторные сигналы: <b>{all_settings.get('repeat_signals', 'false')}</b>",
         f"🆕 Свежие в baseline: <b>{all_settings.get('include_fresh_in_baseline')}</b>",
         f"⏰ Расписание: <b>{all_settings.get('schedule')}</b>",
     ]
@@ -172,6 +173,47 @@ async def cmd_set_schedule(message: Message) -> None:
         "⚠️ Перезапусти бота, чтобы новое расписание вступило в силу.",
         parse_mode="HTML",
     )
+
+
+@router.message(Command("set_include_shorts"), IsAdmin())
+async def cmd_set_include_shorts(message: Message) -> None:
+    """
+    /set_include_shorts true|false
+    Toggle whether YouTube Shorts are included in analysis.
+    """
+    val = _get_single_arg(message.text)
+    if val is None or val.lower() not in ("true", "false", "1", "0", "yes", "no"):
+        await message.answer(
+            "⚠️ Допустимые значения: true / false\n"
+            "Пример: /set_include_shorts true"
+        )
+        return
+
+    normalized = "true" if val.lower() in ("true", "1", "yes") else "false"
+    await _save_setting(message, "include_shorts", normalized)
+    label = "включены ✅" if normalized == "true" else "выключены ⏸"
+    await message.answer(f"🩳 Shorts теперь <b>{label}</b>", parse_mode="HTML")
+
+
+@router.message(Command("set_repeat_signals"), IsAdmin())
+async def cmd_set_repeat_signals(message: Message) -> None:
+    """
+    /set_repeat_signals true|false
+    Toggle whether already-sent anomalies can be re-sent if their ratio grows
+    significantly (by 2x compared to the previously recorded value).
+    """
+    val = _get_single_arg(message.text)
+    if val is None or val.lower() not in ("true", "false", "1", "0", "yes", "no"):
+        await message.answer(
+            "⚠️ Допустимые значения: true / false\n"
+            "Пример: /set_repeat_signals true"
+        )
+        return
+
+    normalized = "true" if val.lower() in ("true", "1", "yes") else "false"
+    await _save_setting(message, "repeat_signals", normalized)
+    label = "включены ✅" if normalized == "true" else "выключены ⏸"
+    await message.answer(f"🔁 Повторные сигналы <b>{label}</b>", parse_mode="HTML")
 
 
 # ---------------------------------------------------------------------------

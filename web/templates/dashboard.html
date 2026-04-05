@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YT Anomaly — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+<style>
+:root {
+  --bg:       #080a0e;
+  --bg1:      #0d1117;
+  --bg2:      #111620;
+  --bg3:      #161c2a;
+  --border:   #1e2840;
+  --border2:  #253050;
+  --text:     #c8d3e8;
+  --text2:    #6b7fa3;
+  --text3:    #3d4f72;
+  --accent:   #e8ff47;
+  --accent2:  #47c8ff;
+  --red:      #ff4757;
+  --green:    #2ecc71;
+  --orange:   #ff9f43;
+  --purple:   #a29bfe;
+  --mono:     'IBM Plex Mono', monospace;
+  --sans:     'IBM Plex Sans', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+
+/* ── Scrollbar ─────────────────── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--bg1); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+/* ── Layout ────────────────────── */
+.shell {
+  display: grid;
+  grid-template-rows: 48px 1fr;
+  grid-template-columns: 220px 1fr;
+  height: 100vh;
+}
+
+/* ── Header ────────────────────── */
+header {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 20px;
+  background: var(--bg1);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.logo-icon {
+  width: 22px; height: 22px;
+  background: var(--accent);
+  border-radius: 3px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px;
+  color: var(--bg);
+}
+
+.header-sep { flex: 1; }
+
+.live-badge {
+  display: flex; align-items: center; gap: 5px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text2);
+  letter-spacing: 0.05em;
+}
+
+.live-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.header-time {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text3);
+}
+
+/* ── Sidebar ───────────────────── */
+nav {
+  background: var(--bg1);
+  border-right: 1px solid var(--border);
+  padding: 16px 0;
+  overflow-y: auto;
+}
+
+.nav-section {
+  padding: 0 12px 12px;
+}
+
+.nav-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text3);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 8px 8px 4px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--text2);
+  font-size: 12px;
+  transition: all 0.15s;
+  border: 1px solid transparent;
+}
+
+.nav-item:hover { background: var(--bg2); color: var(--text); }
+.nav-item.active {
+  background: var(--bg3);
+  color: var(--accent);
+  border-color: var(--border);
+}
+
+.nav-icon { font-size: 14px; width: 18px; text-align: center; }
+
+.nav-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 8px 12px;
+}
+
+/* Channel list in sidebar */
+.channel-list { padding: 0 12px; }
+
+.ch-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--text2);
+  font-size: 11px;
+  transition: all 0.15s;
+}
+
+.ch-item:hover { background: var(--bg2); color: var(--text); }
+.ch-item.selected { color: var(--accent2); }
+
+.ch-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--green);
+  flex-shrink: 0;
+}
+.ch-dot.inactive { background: var(--text3); }
+
+.ch-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ch-count {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+}
+
+/* ── Main content ──────────────── */
+main {
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── Stat cards row ────────────── */
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+}
+
+@media (max-width: 1400px) { .stat-row { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 900px)  { .stat-row { grid-template-columns: repeat(2, 1fr); } }
+
+.stat-card {
+  background: var(--bg1);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 14px 16px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.stat-card:hover { border-color: var(--border2); }
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--accent);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.stat-card:hover::before { opacity: 1; }
+
+.stat-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.stat-value {
+  font-family: var(--mono);
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.stat-sub {
+  font-size: 10px;
+  color: var(--text3);
+}
+
+.stat-card.accent .stat-value { color: var(--accent); }
+.stat-card.blue .stat-value   { color: var(--accent2); }
+.stat-card.red .stat-value    { color: var(--red); }
+
+/* ── Section panels ────────────── */
+.panel {
+  background: var(--bg1);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg2);
+}
+
+.panel-title {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text2);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.panel-badge {
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 3px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  color: var(--text3);
+}
+
+.panel-badge.live {
+  background: rgba(46,204,113,0.1);
+  border-color: rgba(46,204,113,0.3);
+  color: var(--green);
+}
+
+.panel-spacer { flex: 1; }
+
+/* ── Charts row ────────────────── */
+.charts-row {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 16px;
+}
+
+@media (max-width: 1100px) { .charts-row { grid-template-columns: 1fr; } }
+
+.chart-body {
+  padding: 16px;
+  height: 220px;
+  position: relative;
+}
+
+/* ── Detections table ──────────── */
+.table-wrap { overflow-x: auto; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead tr {
+  background: var(--bg2);
+}
+
+th {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 10px 16px;
+  text-align: left;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--border);
+}
+
+td {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+  font-size: 12px;
+}
+
+tr:last-child td { border-bottom: none; }
+tbody tr { transition: background 0.1s; }
+tbody tr:hover { background: var(--bg2); }
+
+.td-thumb {
+  width: 48px;
+}
+
+.thumb {
+  width: 48px; height: 27px;
+  object-fit: cover;
+  border-radius: 3px;
+  background: var(--bg3);
+  display: block;
+}
+
+.thumb-placeholder {
+  width: 48px; height: 27px;
+  border-radius: 3px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: var(--text3);
+}
+
+.td-video {}
+
+.video-title {
+  font-size: 12px;
+  color: var(--text);
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 2px;
+}
+
+.video-title a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.video-title a:hover { color: var(--accent2); }
+
+.video-meta {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+}
+
+.td-channel {
+  color: var(--text2);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.td-views {
+  font-family: var(--mono);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.td-ratio {
+  white-space: nowrap;
+}
+
+.ratio-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 3px;
+}
+
+.ratio-badge.tier1 { background: rgba(232,255,71,0.12);  color: var(--accent);  border: 1px solid rgba(232,255,71,0.25); }
+.ratio-badge.tier2 { background: rgba(71,200,255,0.12);  color: var(--accent2); border: 1px solid rgba(71,200,255,0.25); }
+.ratio-badge.tier3 { background: rgba(255,159,67,0.12);  color: var(--orange);  border: 1px solid rgba(255,159,67,0.25); }
+.ratio-badge.tier4 { background: rgba(255,71,87,0.12);   color: var(--red);     border: 1px solid rgba(255,71,87,0.25); }
+
+.td-date {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+  white-space: nowrap;
+}
+
+.td-method {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+}
+
+/* ── Channels table ────────────── */
+.ch-table-row {
+  display: grid;
+  grid-template-columns: 1fr 60px 80px 80px 140px 70px;
+  gap: 0;
+  align-items: center;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.1s;
+}
+
+.ch-table-row:hover { background: var(--bg2); }
+.ch-table-row:last-child { border-bottom: none; }
+
+.ch-table-head {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+}
+
+.ch-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--mono);
+  font-size: 9px;
+  padding: 2px 7px;
+  border-radius: 10px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.status-pill.active   { background: rgba(46,204,113,0.1); color: var(--green);  border: 1px solid rgba(46,204,113,0.3); }
+.status-pill.inactive { background: rgba(107,127,163,0.1); color: var(--text3); border: 1px solid var(--border); }
+
+.ch-num {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text2);
+}
+
+.ch-best {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.ch-date {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+}
+
+/* ── Filters bar ───────────────── */
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg2);
+  flex-wrap: wrap;
+}
+
+.filter-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+}
+
+.filter-btn {
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 4px 10px;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.filter-btn:hover { border-color: var(--border2); color: var(--text); }
+.filter-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(232,255,71,0.05); }
+
+.filter-sep { width: 1px; height: 16px; background: var(--border); }
+
+/* ── Loading / empty states ─────── */
+.loading-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  color: var(--text3);
+  font-family: var(--mono);
+  font-size: 11px;
+  gap: 8px;
+}
+
+.spinner {
+  width: 14px; height: 14px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.empty-state {
+  padding: 60px;
+  text-align: center;
+  color: var(--text3);
+}
+
+.empty-state .empty-icon { font-size: 32px; margin-bottom: 12px; }
+.empty-state .empty-text { font-family: var(--mono); font-size: 11px; }
+
+/* ── Pagination ─────────────────── */
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border-top: 1px solid var(--border);
+  background: var(--bg2);
+}
+
+.page-btn {
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.page-btn:hover:not(:disabled) { border-color: var(--border2); color: var(--text); }
+.page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.page-btn.current { border-color: var(--accent); color: var(--accent); background: rgba(232,255,71,0.05); }
+
+.page-info {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+  flex: 1;
+  text-align: center;
+}
+
+/* ── View toggle ─────────────────── */
+.view-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg1);
+}
+
+.view-tab {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 10px 20px;
+  color: var(--text3);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s;
+}
+
+.view-tab:hover { color: var(--text2); }
+.view-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* ── Animations ─────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in { animation: fadeIn 0.3s ease forwards; }
+
+.stat-card { animation: fadeIn 0.4s ease both; }
+.stat-card:nth-child(1) { animation-delay: 0.05s; }
+.stat-card:nth-child(2) { animation-delay: 0.10s; }
+.stat-card:nth-child(3) { animation-delay: 0.15s; }
+.stat-card:nth-child(4) { animation-delay: 0.20s; }
+.stat-card:nth-child(5) { animation-delay: 0.25s; }
+.stat-card:nth-child(6) { animation-delay: 0.30s; }
+
+/* ── Top bar channel filter ──────── */
+.top-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+</style>
+</head>
+
+<body>
+<div class="shell">
+
+<!-- ════ HEADER ════ -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">▲</div>
+    YT ANOMALY
+  </div>
+  <span style="color:var(--border2); font-family:var(--mono); font-size:12px;">/</span>
+  <span style="font-family:var(--mono); font-size:11px; color:var(--text3);">DASHBOARD</span>
+  <div class="header-sep"></div>
+  <div class="live-badge">
+    <div class="live-dot"></div>
+    LIVE
+  </div>
+  <div class="header-time" id="clock"></div>
+</header>
+
+<!-- ════ SIDEBAR ════ -->
+<nav>
+  <div class="nav-section">
+    <div class="nav-label">Разделы</div>
+    <div class="nav-item active" onclick="showView('overview')" id="nav-overview">
+      <span class="nav-icon">◈</span> Обзор
+    </div>
+    <div class="nav-item" onclick="showView('detections')" id="nav-detections">
+      <span class="nav-icon">◉</span> Аномалии
+    </div>
+    <div class="nav-item" onclick="showView('channels')" id="nav-channels">
+      <span class="nav-icon">◎</span> Каналы
+    </div>
+  </div>
+
+  <div class="nav-divider"></div>
+
+  <div class="channel-list">
+    <div class="nav-label" style="padding: 8px 8px 6px;">Каналы</div>
+    <div id="sidebar-channels">
+      <div style="padding:8px; font-family:var(--mono); font-size:10px; color:var(--text3);">загрузка...</div>
+    </div>
+  </div>
+</nav>
+
+<!-- ════ MAIN ════ -->
+<main id="main-content">
+
+  <!-- ── OVERVIEW VIEW ── -->
+  <div id="view-overview">
+
+    <!-- Stat cards -->
+    <div class="stat-row" id="stat-cards">
+      <div class="stat-card">
+        <div class="stat-label">Каналов всего</div>
+        <div class="stat-value" id="s-channels">—</div>
+        <div class="stat-sub" id="s-channels-sub">загрузка...</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Видео в базе</div>
+        <div class="stat-value" id="s-videos">—</div>
+        <div class="stat-sub">проанализировано</div>
+      </div>
+      <div class="stat-card accent">
+        <div class="stat-label">Аномалий найдено</div>
+        <div class="stat-value" id="s-detections">—</div>
+        <div class="stat-sub" id="s-detections-sub">отправлено</div>
+      </div>
+      <div class="stat-card blue">
+        <div class="stat-label">Лучший рекорд</div>
+        <div class="stat-value" id="s-best">—</div>
+        <div class="stat-sub">макс. ratio</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Последняя проверка</div>
+        <div class="stat-value" style="font-size:16px;" id="s-last-check">—</div>
+        <div class="stat-sub" id="s-last-check-sub"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Ожидание сигналов</div>
+        <div class="stat-value" id="s-pending">—</div>
+        <div class="stat-sub">pending / failed</div>
+      </div>
+    </div>
+
+    <!-- Charts row -->
+    <div class="charts-row">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Аномалии по времени</div>
+          <div class="panel-spacer"></div>
+          <div class="panel-badge live">90 дней</div>
+        </div>
+        <div class="chart-body">
+          <canvas id="chart-timeline"></canvas>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Распределение ratio</div>
+        </div>
+        <div class="chart-body">
+          <canvas id="chart-dist"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top channels -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Топ каналов по аномалиям</div>
+      </div>
+      <div id="top-channels-body">
+        <div class="loading-row"><div class="spinner"></div> загрузка...</div>
+      </div>
+    </div>
+
+    <!-- Recent detections preview -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Последние аномалии</div>
+        <div class="panel-spacer"></div>
+        <div class="panel-badge" style="cursor:pointer" onclick="showView('detections')">все →</div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:48px"></th>
+              <th>Видео</th>
+              <th>Канал</th>
+              <th>Просмотры</th>
+              <th>Ratio</th>
+              <th>Дата</th>
+            </tr>
+          </thead>
+          <tbody id="recent-detections-body">
+            <tr><td colspan="6"><div class="loading-row"><div class="spinner"></div> загрузка...</div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /view-overview -->
+
+  <!-- ── DETECTIONS VIEW ── -->
+  <div id="view-detections" style="display:none;">
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Все аномалии</div>
+        <div class="panel-spacer"></div>
+        <div class="panel-badge" id="det-total-badge">...</div>
+      </div>
+
+      <div class="filters">
+        <span class="filter-label">ПЕРИОД:</span>
+        <button class="filter-btn" onclick="setDays(30)" id="f30">30д</button>
+        <button class="filter-btn active" onclick="setDays(90)" id="f90">90д</button>
+        <button class="filter-btn" onclick="setDays(180)" id="f180">180д</button>
+        <button class="filter-btn" onclick="setDays(365)" id="f365">365д</button>
+        <div class="filter-sep"></div>
+        <span class="filter-label">RATIO:</span>
+        <button class="filter-btn active" onclick="setMinRatio(0)" id="fr-all">все</button>
+        <button class="filter-btn" onclick="setMinRatio(2)" id="fr-2">2x+</button>
+        <button class="filter-btn" onclick="setMinRatio(3)" id="fr-3">3x+</button>
+        <button class="filter-btn" onclick="setMinRatio(5)" id="fr-5">5x+</button>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:48px"></th>
+              <th>Видео</th>
+              <th>Канал</th>
+              <th>Просмотры</th>
+              <th>Норма</th>
+              <th>Ratio</th>
+              <th>Метод</th>
+              <th>Дата</th>
+            </tr>
+          </thead>
+          <tbody id="detections-table-body">
+            <tr><td colspan="8"><div class="loading-row"><div class="spinner"></div> загрузка...</div></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pagination">
+        <button class="page-btn" id="btn-prev" onclick="changePage(-1)" disabled>← пред</button>
+        <div class="page-info" id="page-info"></div>
+        <button class="page-btn" id="btn-next" onclick="changePage(1)">след →</button>
+      </div>
+    </div>
+  </div><!-- /view-detections -->
+
+  <!-- ── CHANNELS VIEW ── -->
+  <div id="view-channels" style="display:none;">
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Отслеживаемые каналы</div>
+        <div class="panel-spacer"></div>
+        <div class="panel-badge" id="ch-count-badge">...</div>
+      </div>
+
+      <div class="ch-table-row ch-table-head">
+        <div>Канал</div>
+        <div>Видео</div>
+        <div>Аномалии</div>
+        <div>Лучший</div>
+        <div>Последняя</div>
+        <div>Статус</div>
+      </div>
+
+      <div id="channels-table-body">
+        <div class="loading-row"><div class="spinner"></div> загрузка...</div>
+      </div>
+    </div>
+  </div><!-- /view-channels -->
+
+</main>
+</div><!-- /shell -->
+
+<script>
+// ═══════════════════════════════════════════════════
+// State
+// ═══════════════════════════════════════════════════
+const state = {
+  view: 'overview',
+  daysFilter: 90,
+  minRatio: 0,
+  page: 0,
+  pageSize: 25,
+  totalDet: 0,
+  allDetections: [],
+  channels: [],
+  selectedChannelId: null,
+};
+
+// ═══════════════════════════════════════════════════
+// Utilities
+// ═══════════════════════════════════════════════════
+const $ = id => document.getElementById(id);
+
+function fmtViews(n) {
+  if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + 'M';
+  if (n >= 1_000) return Math.round(n / 1_000) + 'K';
+  return String(n);
+}
+
+function fmtDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleDateString('ru-RU', { day:'2-digit', month:'2-digit', year:'2-digit' });
+}
+
+function fmtDateTime(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  const now = new Date();
+  const diff = Math.floor((now - d) / 60000);
+  if (diff < 60) return `${diff}м назад`;
+  if (diff < 1440) return `${Math.floor(diff/60)}ч назад`;
+  return `${Math.floor(diff/1440)}д назад`;
+}
+
+function ratioBadge(ratio) {
+  let tier = 'tier2';
+  if (ratio >= 10) tier = 'tier4';
+  else if (ratio >= 5) tier = 'tier3';
+  else if (ratio >= 3) tier = 'tier1';
+  const pct = Math.round((ratio - 1) * 100);
+  return `<span class="ratio-badge ${tier}">+${pct}% &nbsp; ${ratio.toFixed(1)}x</span>`;
+}
+
+function thumbCell(url, title) {
+  if (url) return `<img class="thumb" src="${url}" alt="" loading="lazy" onerror="this.style.display='none'">`;
+  return `<div class="thumb-placeholder">▶</div>`;
+}
+
+// ═══════════════════════════════════════════════════
+// Clock
+// ═══════════════════════════════════════════════════
+function updateClock() {
+  const now = new Date();
+  $('clock').textContent = now.toLocaleTimeString('ru-RU', { hour12: false });
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ═══════════════════════════════════════════════════
+// Navigation
+// ═══════════════════════════════════════════════════
+function showView(view) {
+  ['overview','detections','channels'].forEach(v => {
+    $(`view-${v}`).style.display = v === view ? '' : 'none';
+    $(`nav-${v}`).classList.toggle('active', v === view);
+  });
+  state.view = view;
+  if (view === 'detections') loadDetections();
+  if (view === 'channels')   renderChannelsView();
+}
+
+// ═══════════════════════════════════════════════════
+// API fetchers
+// ═══════════════════════════════════════════════════
+async function api(path) {
+  const r = await fetch('/api' + path);
+  if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
+  return r.json();
+}
+
+// ═══════════════════════════════════════════════════
+// Overview
+// ═══════════════════════════════════════════════════
+async function loadOverview() {
+  try {
+    const s = await api('/stats/overview');
+    $('s-channels').textContent = s.total_channels;
+    $('s-channels-sub').textContent = `${s.active_channels} активных`;
+    $('s-videos').textContent = fmtViews(s.total_videos);
+    $('s-detections').textContent = s.total_detections;
+    $('s-detections-sub').textContent = `${s.sent_detections} отправлено`;
+    $('s-best').textContent = s.best_ratio ? s.best_ratio + 'x' : '—';
+    $('s-last-check').textContent = s.last_check ? fmtDateTime(s.last_check) : '—';
+    const pending = s.total_detections - s.sent_detections;
+    $('s-pending').textContent = pending;
+  } catch(e) { console.error('Overview error:', e); }
+}
+
+async function loadTimeline() {
+  try {
+    const data = await api('/charts/anomalies_over_time?days=90');
+    if (!data.length) return;
+    const ctx = $('chart-timeline').getContext('2d');
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: data.map(d => d.day.slice(5)),
+        datasets: [
+          {
+            label: 'Аномалий',
+            data: data.map(d => d.count),
+            backgroundColor: 'rgba(232,255,71,0.6)',
+            borderColor: 'rgba(232,255,71,0.9)',
+            borderWidth: 1,
+            borderRadius: 2,
+            order: 2,
+          },
+          {
+            label: 'Avg ratio',
+            data: data.map(d => d.avg_ratio),
+            type: 'line',
+            borderColor: 'rgba(71,200,255,0.8)',
+            backgroundColor: 'rgba(71,200,255,0.08)',
+            borderWidth: 1.5,
+            pointRadius: 2,
+            pointHoverRadius: 4,
+            fill: true,
+            tension: 0.4,
+            yAxisID: 'y2',
+            order: 1,
+          }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false,
+          backgroundColor: '#0d1117', borderColor: '#1e2840', borderWidth: 1,
+          titleColor: '#6b7fa3', bodyColor: '#c8d3e8', titleFont: { family: 'IBM Plex Mono', size: 10 },
+          bodyFont: { family: 'IBM Plex Mono', size: 11 },
+        }},
+        scales: {
+          x: { grid: { color: '#1e2840' }, ticks: { color: '#3d4f72', font: { family: 'IBM Plex Mono', size: 9 }, maxTicksLimit: 12 } },
+          y: { grid: { color: '#1e2840' }, ticks: { color: '#3d4f72', font: { family: 'IBM Plex Mono', size: 9 } } },
+          y2: { position: 'right', grid: { display: false }, ticks: { color: '#3d4f72', font: { family: 'IBM Plex Mono', size: 9 } } },
+        }
+      }
+    });
+  } catch(e) { console.error('Timeline error:', e); }
+}
+
+async function loadDistribution() {
+  try {
+    const data = await api('/charts/ratio_distribution');
+    const ctx = $('chart-dist').getContext('2d');
+    const colors = ['#e8ff47','#47c8ff','#ff9f43','#ff4757','#a29bfe','#2ecc71','#fd79a8','#fdcb6e'];
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: data.map(d => d.label),
+        datasets: [{
+          data: data.map(d => d.count),
+          backgroundColor: data.map((_, i) => colors[i % colors.length] + '99'),
+          borderColor: data.map((_, i) => colors[i % colors.length]),
+          borderWidth: 1,
+          borderRadius: 2,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#0d1117', borderColor: '#1e2840', borderWidth: 1,
+            titleColor: '#6b7fa3', bodyColor: '#c8d3e8',
+            titleFont: { family: 'IBM Plex Mono', size: 10 },
+            bodyFont: { family: 'IBM Plex Mono', size: 11 },
+          }
+        },
+        scales: {
+          x: { grid: { color: '#1e2840' }, ticks: { color: '#3d4f72', font: { family: 'IBM Plex Mono', size: 9 } } },
+          y: { grid: { color: '#1e2840' }, ticks: { color: '#3d4f72', font: { family: 'IBM Plex Mono', size: 9 } } },
+        }
+      }
+    });
+  } catch(e) { console.error('Distribution error:', e); }
+}
+
+async function loadTopChannels() {
+  try {
+    const data = await api('/charts/top_channels?limit=8');
+    const el = $('top-channels-body');
+    if (!data.length) {
+      el.innerHTML = '<div class="empty-state"><div class="empty-icon">◎</div><div class="empty-text">нет данных</div></div>';
+      return;
+    }
+    const maxDet = Math.max(...data.map(d => d.detections));
+    el.innerHTML = data.map(d => `
+      <div style="padding:12px 16px; border-bottom:1px solid var(--border); display:grid; grid-template-columns:1fr 80px 70px 70px; gap:16px; align-items:center; transition:background .1s;" onmouseover="this.style.background='var(--bg2)'" onmouseout="this.style.background=''">
+        <div>
+          <div style="font-size:12px; color:var(--text); margin-bottom:4px;">${d.channel}</div>
+          <div style="height:3px; background:var(--border); border-radius:2px; overflow:hidden; width:100%;">
+            <div style="height:100%; width:${Math.round(d.detections/maxDet*100)}%; background:var(--accent); border-radius:2px; transition:width .5s ease;"></div>
+          </div>
+        </div>
+        <div style="font-family:var(--mono); font-size:12px; color:var(--text2); text-align:right;">${d.detections} сигн.</div>
+        <div style="font-family:var(--mono); font-size:12px; color:var(--accent2); text-align:right;">${d.avg_ratio}x avg</div>
+        <div style="font-family:var(--mono); font-size:12px; color:var(--accent); text-align:right;">${d.max_ratio}x max</div>
+      </div>
+    `).join('');
+  } catch(e) {
+    $('top-channels-body').innerHTML = '<div class="loading-row" style="color:var(--red);">ошибка загрузки</div>';
+  }
+}
+
+async function loadRecentDetections() {
+  try {
+    const data = await api('/detections?limit=8&days=90');
+    const tbody = $('recent-detections-body');
+    if (!data.items.length) {
+      tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">◉</div><div class="empty-text">аномалий пока нет</div></div></td></tr>';
+      return;
+    }
+    tbody.innerHTML = data.items.map(det => `
+      <tr class="fade-in">
+        <td class="td-thumb">${thumbCell(det.thumbnail_url)}</td>
+        <td class="td-video">
+          <div class="video-title"><a href="${det.video_url}" target="_blank">${det.video_title}</a></div>
+          <div class="video-meta">${fmtDate(det.published_at)}</div>
+        </td>
+        <td class="td-channel">${det.channel_title}</td>
+        <td class="td-views">${fmtViews(det.view_count)}</td>
+        <td class="td-ratio">${ratioBadge(det.anomaly_ratio)}</td>
+        <td class="td-date">${fmtDateTime(det.detected_at)}</td>
+      </tr>
+    `).join('');
+  } catch(e) { console.error('Recent detections error:', e); }
+}
+
+// ═══════════════════════════════════════════════════
+// Detections view
+// ═══════════════════════════════════════════════════
+async function loadDetections() {
+  const tbody = $('detections-table-body');
+  tbody.innerHTML = '<tr><td colspan="8"><div class="loading-row"><div class="spinner"></div> загрузка...</div></td></tr>';
+
+  try {
+    const offset = state.page * state.pageSize;
+    let url = `/detections?limit=${state.pageSize}&offset=${offset}&days=${state.daysFilter}`;
+    if (state.selectedChannelId) url += `&channel_id=${state.selectedChannelId}`;
+    const data = await api(url);
+    state.totalDet = data.total;
+
+    let items = data.items;
+    if (state.minRatio > 0) items = items.filter(d => d.anomaly_ratio >= state.minRatio);
+
+    $('det-total-badge').textContent = `${data.total} записей`;
+
+    if (!items.length) {
+      tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">◉</div><div class="empty-text">нет аномалий за выбранный период</div></div></td></tr>';
+    } else {
+      tbody.innerHTML = items.map(det => `
+        <tr class="fade-in">
+          <td class="td-thumb">${thumbCell(det.thumbnail_url)}</td>
+          <td class="td-video">
+            <div class="video-title"><a href="${det.video_url}" target="_blank">${det.video_title}</a></div>
+            <div class="video-meta">${fmtDate(det.published_at)}</div>
+          </td>
+          <td class="td-channel">${det.channel_title}</td>
+          <td class="td-views">${fmtViews(det.view_count)}</td>
+          <td class="td-views" style="color:var(--text3);">${fmtViews(det.baseline_value)}</td>
+          <td class="td-ratio">${ratioBadge(det.anomaly_ratio)}</td>
+          <td class="td-method">${det.baseline_method}</td>
+          <td class="td-date">${fmtDateTime(det.detected_at)}</td>
+        </tr>
+      `).join('');
+    }
+
+    // Pagination
+    const totalPages = Math.ceil(data.total / state.pageSize);
+    const currentPage = state.page + 1;
+    $('page-info').textContent = totalPages > 0 ? `стр. ${currentPage} из ${totalPages}` : '0 результатов';
+    $('btn-prev').disabled = state.page === 0;
+    $('btn-next').disabled = state.page >= totalPages - 1;
+
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="loading-row" style="color:var(--red);">ошибка: ${e.message}</div></td></tr>`;
+  }
+}
+
+function setDays(days) {
+  state.daysFilter = days;
+  state.page = 0;
+  ['30','90','180','365'].forEach(d => $(`f${d}`).classList.toggle('active', String(days) === d));
+  loadDetections();
+}
+
+function setMinRatio(r) {
+  state.minRatio = r;
+  state.page = 0;
+  ['all','2','3','5'].forEach(v => $(`fr-${v}`).classList.toggle('active', String(r) === (v === 'all' ? '0' : v)));
+  loadDetections();
+}
+
+function changePage(dir) {
+  state.page += dir;
+  loadDetections();
+}
+
+// ═══════════════════════════════════════════════════
+// Channels view
+// ═══════════════════════════════════════════════════
+function renderChannelsView() {
+  const el = $('channels-table-body');
+  const data = state.channels;
+  $('ch-count-badge').textContent = `${data.length} каналов`;
+  if (!data.length) {
+    el.innerHTML = '<div class="loading-row" style="color:var(--text3);">нет каналов</div>';
+    return;
+  }
+  el.innerHTML = data.map(ch => `
+    <div class="ch-table-row fade-in">
+      <div>
+        <div style="font-size:12px; color:var(--text); margin-bottom:2px;">${ch.title}</div>
+        <div style="font-family:var(--mono); font-size:10px; color:var(--text3);">
+          <a href="https://youtube.com/channel/${ch.youtube_channel_id}" target="_blank" style="color:inherit; text-decoration:none;">${ch.youtube_channel_id}</a>
+        </div>
+      </div>
+      <div class="ch-num">${fmtViews(ch.video_count)}</div>
+      <div class="ch-num">${ch.detection_count}</div>
+      <div class="ch-best">${ch.best_ratio ? ch.best_ratio + 'x' : '—'}</div>
+      <div class="ch-date">${ch.last_detection ? fmtDateTime(ch.last_detection) : '—'}</div>
+      <div>
+        <span class="status-pill ${ch.is_active ? 'active' : 'inactive'}">
+          ${ch.is_active ? '● ACTIVE' : '○ PAUSED'}
+        </span>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════════════════════════════
+// Sidebar channels
+// ═══════════════════════════════════════════════════
+function renderSidebarChannels(channels) {
+  const el = $('sidebar-channels');
+  if (!channels.length) {
+    el.innerHTML = '<div style="padding:8px; font-family:var(--mono); font-size:10px; color:var(--text3);">нет каналов</div>';
+    return;
+  }
+  el.innerHTML = channels.map(ch => `
+    <div class="ch-item ${state.selectedChannelId === ch.id ? 'selected' : ''}" onclick="filterByChannel(${ch.id})">
+      <div class="ch-dot ${ch.is_active ? '' : 'inactive'}"></div>
+      <div class="ch-name">${ch.title}</div>
+      <div class="ch-count">${ch.detection_count}</div>
+    </div>
+  `).join('');
+
+  // Add "all channels" at top
+  el.insertAdjacentHTML('afterbegin', `
+    <div class="ch-item ${state.selectedChannelId === null ? 'selected' : ''}" onclick="filterByChannel(null)">
+      <div class="ch-dot"></div>
+      <div class="ch-name" style="color:var(--text2);">Все каналы</div>
+    </div>
+  `);
+}
+
+function filterByChannel(channelId) {
+  state.selectedChannelId = channelId;
+  state.page = 0;
+  renderSidebarChannels(state.channels);
+  if (state.view === 'detections') loadDetections();
+  else showView('detections');
+}
+
+// ═══════════════════════════════════════════════════
+// Boot
+// ═══════════════════════════════════════════════════
+async function boot() {
+  // Load channels first (used in sidebar + channels view)
+  try {
+    state.channels = await api('/channels');
+    renderSidebarChannels(state.channels);
+  } catch(e) { console.error('Channels load error:', e); }
+
+  // Load overview data in parallel
+  await Promise.allSettled([
+    loadOverview(),
+    loadTimeline(),
+    loadDistribution(),
+    loadTopChannels(),
+    loadRecentDetections(),
+  ]);
+}
+
+boot();
+
+// Auto-refresh every 5 minutes
+setInterval(() => {
+  if (state.view === 'overview') {
+    loadOverview();
+    loadRecentDetections();
+  }
+  if (state.view === 'detections') loadDetections();
+}, 5 * 60 * 1000);
+</script>
+</body>
+</html>

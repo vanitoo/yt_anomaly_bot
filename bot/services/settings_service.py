@@ -63,6 +63,13 @@ class SettingsService:
     async def set(self, key: str, value: str) -> None:
         await self._repo.set(key, value)
 
+    async def get_bool(self, key: str, default: bool = False) -> bool:
+        """Read a boolean setting, falling back to default if not set."""
+        raw = await self._repo.get(key)
+        if raw is None:
+            return default
+        return raw.lower() in ("true", "1", "yes")
+
     async def get_all_display(self) -> dict[str, str]:
         cfg = get_settings()
         defaults = {

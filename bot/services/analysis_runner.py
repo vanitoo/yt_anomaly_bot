@@ -3,6 +3,12 @@ Analysis runner service.
 
 Orchestrates the full pipeline:
   fetch videos → upsert DB → detect anomalies → deduplicate → notify Telegram.
+
+Deduplication logic:
+  - First signal: video has never been sent → always send.
+  - Repeat signal: video was already sent, but ratio grew significantly
+    (by REPEAT_SIGNAL_MULTIPLIER or more) → send again with [🔁 UPDATE] label.
+  - By default repeat signals are disabled; enable via setting repeat_signals=true.
 """
 from __future__ import annotations
 
@@ -23,6 +29,11 @@ from bot.services.notification_service import NotificationService
 from bot.services.settings_service import SettingsService
 
 logger = logging.getLogger(__name__)
+
+# A repeat signal is sent when the new ratio is at least this much higher
+# than the previously recorded maximum ratio. E.g. 2.0 means ratio must
+# double compared to last recorded value (e.g. 2x → 4x, or 3x → 6x).
+REPEAT_SIGNAL_MULTIPLIER = 2.0
 
 
 class AnalysisRunner:
@@ -56,16 +67,19 @@ class AnalysisRunner:
         """
         logger.info("=== Starting analysis cycle ===")
         config = await self._settings_svc.get_analysis_config()
+        repeat_signals_enabled = await self._settings_svc.get_bool(
+            "repeat_signals", default=False
+        )
         channels = await self._channel_repo.get_active()
         logger.info("Active channels: %d", len(channels))
 
-        total_anomalies = 0
         total_sent = 0
 
         for channel in channels:
             try:
-                sent = await self._process_channel(channel, config)
-                total_anomalies += sent
+                sent = await self._process_channel(
+                    channel, config, repeat_signals_enabled
+                )
                 total_sent += sent
             except YouTubeAPIError as exc:
                 logger.error("YouTube API error for channel %r: %s", channel.channel_title, exc)
@@ -81,7 +95,12 @@ class AnalysisRunner:
         )
         return {"channels_checked": len(channels), "anomalies_sent": total_sent}
 
-    async def _process_channel(self, channel: Channel, config: AnalysisConfig) -> int:
+    async def _process_channel(
+        self,
+        channel: Channel,
+        config: AnalysisConfig,
+        repeat_signals_enabled: bool,
+    ) -> int:
         """Process one channel. Returns count of anomalies sent."""
         logger.info("Checking channel: %s (%s)", channel.channel_title, channel.youtube_channel_id)
 
@@ -100,7 +119,7 @@ class AnalysisRunner:
         cutoff = datetime.now(timezone.utc) - timedelta(days=config.period_days)
         for rv in raw_videos:
             if rv.published_at < cutoff:
-                continue  # skip very old videos entirely
+                continue
             await self._video_repo.upsert(
                 youtube_video_id=rv.youtube_video_id,
                 channel_id=channel.id,
@@ -143,9 +162,33 @@ class AnalysisRunner:
                 continue
 
             already_sent = await self._detection_repo.was_video_sent(video_db.id)
+
             if already_sent:
-                logger.debug("Skipping already-sent video: %s", result.video.title)
-                continue
+                # Check if we should send a repeat signal
+                if not repeat_signals_enabled:
+                    logger.debug("Skipping already-sent video (repeat disabled): %s", result.video.title)
+                    continue
+
+                prev_max_ratio = await self._detection_repo.get_max_ratio_for_video(video_db.id)
+                if prev_max_ratio is None or result.anomaly_ratio < prev_max_ratio * REPEAT_SIGNAL_MULTIPLIER:
+                    logger.debug(
+                        "Skipping repeat signal for %r: ratio=%.2fx prev_max=%.2fx (need %.2fx)",
+                        result.video.title,
+                        result.anomaly_ratio,
+                        prev_max_ratio or 0,
+                        (prev_max_ratio or 0) * REPEAT_SIGNAL_MULTIPLIER,
+                    )
+                    continue
+
+                logger.info(
+                    "Repeat signal for %r: ratio grew %.2fx → %.2fx",
+                    result.video.title,
+                    prev_max_ratio,
+                    result.anomaly_ratio,
+                )
+                is_repeat = True
+            else:
+                is_repeat = False
 
             # Create detection record
             detection = await self._detection_repo.create(
@@ -163,11 +206,13 @@ class AnalysisRunner:
                 msg_id = await self._notifier.send_anomaly(
                     channel_title=channel.channel_title,
                     result=result,
+                    is_repeat=is_repeat,
                 )
                 await self._detection_repo.mark_sent(detection.id, msg_id)
                 sent_count += 1
                 logger.info(
-                    "Sent anomaly notification for %r (ratio=%.2fx)",
+                    "Sent %snotification for %r (ratio=%.2fx)",
+                    "repeat " if is_repeat else "",
                     result.video.title,
                     result.anomaly_ratio,
                 )
@@ -189,3 +234,4 @@ class AnalysisRunner:
             video_url=video.video_url,
             is_short=video.is_short,
         )
+

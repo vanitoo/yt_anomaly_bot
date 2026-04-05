@@ -79,9 +79,21 @@ class YouTubeClient:
           - https://youtube.com/@handle
           - https://youtube.com/user/username
           - https://youtube.com/c/custom
+          - https://youtube.com/watch?v=VIDEO_ID   (extracts channel from video)
+          - https://youtube.com/playlist?list=PL.. (extracts channel from playlist)
           - @handle (bare)
           - UCxxxxxxx (bare channel ID)
         """
+        # Try video URL first — extract channel ID from video snippet
+        video_id = self._extract_video_id(url_or_handle)
+        if video_id:
+            return await self._fetch_channel_from_video(video_id)
+
+        # Try playlist URL — extract channel from first video
+        playlist_id = self._extract_playlist_id(url_or_handle)
+        if playlist_id:
+            return await self._fetch_channel_from_playlist(playlist_id)
+
         channel_id = self._extract_channel_id_from_url(url_or_handle)
         if channel_id:
             return await self._fetch_channel_by_id(channel_id)
@@ -133,6 +145,51 @@ class YouTubeClient:
                 if idx + 1 < len(path_parts):
                     return path_parts[idx + 1]
         return None
+
+    def _extract_video_id(self, url: str) -> Optional[str]:
+        """Extract video ID from youtube.com/watch?v=... or youtu.be/... URLs."""
+        parsed = urlparse(url)
+        if parsed.netloc in ("youtu.be",):
+            parts = [p for p in parsed.path.split("/") if p]
+            return parts[0] if parts else None
+        if "youtube.com" in parsed.netloc:
+            qs = parse_qs(parsed.query)
+            if "v" in qs:
+                return qs["v"][0]
+        return None
+
+    def _extract_playlist_id(self, url: str) -> Optional[str]:
+        """Extract playlist ID from youtube.com/playlist?list=... URLs."""
+        parsed = urlparse(url)
+        if "youtube.com" in parsed.netloc:
+            qs = parse_qs(parsed.query)
+            if "list" in qs:
+                return qs["list"][0]
+        return None
+
+    async def _fetch_channel_from_video(self, video_id: str) -> ChannelInfo:
+        """Resolve channel by fetching a video's snippet and getting its channelId."""
+        data = await self._get(
+            "videos",
+            params={"part": "snippet", "id": video_id},
+        )
+        items = data.get("items", [])
+        if not items:
+            raise ChannelNotFoundError(f"Video not found: {video_id!r}")
+        channel_id = items[0]["snippet"]["channelId"]
+        return await self._fetch_channel_by_id(channel_id)
+
+    async def _fetch_channel_from_playlist(self, playlist_id: str) -> ChannelInfo:
+        """Resolve channel from a playlist's channelId."""
+        data = await self._get(
+            "playlists",
+            params={"part": "snippet", "id": playlist_id},
+        )
+        items = data.get("items", [])
+        if not items:
+            raise ChannelNotFoundError(f"Playlist not found: {playlist_id!r}")
+        channel_id = items[0]["snippet"]["channelId"]
+        return await self._fetch_channel_by_id(channel_id)
 
     async def _fetch_channel_by_id(self, channel_id: str) -> ChannelInfo:
         data = await self._get(

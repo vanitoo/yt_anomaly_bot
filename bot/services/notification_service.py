@@ -30,13 +30,14 @@ def _fmt_date(dt) -> str:
     return dt.strftime("%d.%m.%Y")
 
 
-def build_anomaly_caption(channel_title: str, result: AnomalyResult) -> str:
+def build_anomaly_caption(channel_title: str, result: AnomalyResult, is_repeat: bool = False) -> str:
     """Build the formatted Telegram caption for an anomaly alert."""
     v = result.video
     sign = "+" if result.anomaly_percent >= 0 else ""
+    header = "🔁 <b>Повторный сигнал — YouTube аномалия</b>" if is_repeat else "🚨 <b>Аномалия на YouTube</b>"
 
     lines = [
-        "🚨 <b>Аномалия на YouTube</b>",
+        header,
         "",
         f"📺 <b>Канал:</b> {_escape(channel_title)}",
         f"🎬 <b>Видео:</b> {_escape(v.title)}",
@@ -71,13 +72,13 @@ class NotificationService:
         self._bot = bot
         self._chat_id = chat_id
 
-    async def send_anomaly(self, channel_title: str, result: AnomalyResult) -> int:
+    async def send_anomaly(self, channel_title: str, result: AnomalyResult, is_repeat: bool = False) -> int:
         """
         Send anomaly notification with thumbnail.
 
         Returns the Telegram message_id of the sent message.
         """
-        caption = build_anomaly_caption(channel_title, result)
+        caption = build_anomaly_caption(channel_title, result, is_repeat=is_repeat)
         thumbnail_url = result.video.thumbnail_url
 
         if thumbnail_url:

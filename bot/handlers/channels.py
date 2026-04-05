@@ -125,5 +125,64 @@ async def cmd_list_channels(message: Message) -> None:
             f"{status} <b>{ch.channel_title}</b>\n"
             f"   🆔 <code>{ch.youtube_channel_id}</code>"
         )
-
+    lines.append(
+        "\n<i>Управление: /enable_channel &lt;url&gt; | /disable_channel &lt;url&gt;</i>"
+    )
     await message.answer("\n".join(lines), parse_mode="HTML")
+
+
+@router.message(Command("enable_channel"), IsAdmin())
+async def cmd_enable_channel(message: Message) -> None:
+    """
+    /enable_channel <url_or_id>
+
+    Re-enables a previously disabled channel.
+    """
+    await _toggle_channel(message, active=True)
+
+
+@router.message(Command("disable_channel"), IsAdmin())
+async def cmd_disable_channel(message: Message) -> None:
+    """
+    /disable_channel <url_or_id>
+
+    Pauses tracking for a channel without deleting it.
+    """
+    await _toggle_channel(message, active=False)
+
+
+async def _toggle_channel(message: Message, active: bool) -> None:
+    """Shared logic for enable/disable channel commands."""
+    action = "включить" if active else "выключить"
+    args = (message.text or "").split(maxsplit=1)
+    if len(args) < 2 or not args[1].strip():
+        cmd = "enable_channel" if active else "disable_channel"
+        await message.answer(
+            f"⚠️ Укажи ссылку или ID канала.\n"
+            f"Пример: <code>/{cmd} https://youtube.com/@MrBeast</code>",
+            parse_mode="HTML",
+        )
+        return
+
+    url_or_id = args[1].strip()
+    cfg = get_settings()
+    try:
+        async with get_session(cfg.database_url) as session:
+            svc = make_channel_service(session)
+            ok = await svc.toggle_channel(url_or_id, active=active)
+
+        if ok:
+            icon = "▶️" if active else "⏸"
+            status_text = "включён" if active else "приостановлен"
+            await message.answer(
+                f"{icon} Канал <b>{status_text}</b>.", parse_mode="HTML"
+            )
+        else:
+            await message.answer(
+                f"⚠️ Канал не найден в базе. Сначала добавь его через /add_channel."
+            )
+    except YouTubeAPIError as exc:
+        await message.answer(f"❌ Ошибка YouTube API: {exc}")
+    except Exception as exc:
+        logger.exception("Unexpected error in toggle_channel (active=%s): %s", active, exc)
+        await message.answer(f"❌ Не удалось {action} канал. Смотри логи.")

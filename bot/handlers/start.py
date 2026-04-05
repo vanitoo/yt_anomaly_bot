@@ -28,13 +28,15 @@ HELP_TEXT = """
 
 <b>Каналы:</b>
 /add_channel &lt;url&gt; — добавить канал
-/remove_channel &lt;url_or_id&gt; — удалить канал
+/remove_channel &lt;url&gt; — удалить канал
 /list_channels — список отслеживаемых каналов
+/enable_channel &lt;url&gt; — включить канал
+/disable_channel &lt;url&gt; — приостановить канал
 
 <b>Анализ:</b>
 /check_now — запустить проверку вручную
 
-<b>Настройки:</b>
+<b>Настройки (только админы):</b>
 /settings — текущие параметры анализа
 /set_threshold &lt;число&gt; — порог аномалии (по умолч. 1.8)
 /set_min_views &lt;число&gt; — мин. просмотры (по умолч. 5000)
@@ -42,6 +44,11 @@ HELP_TEXT = """
 /set_period_days &lt;число&gt; — окно анализа в днях (по умолч. 90)
 /set_baseline &lt;median|trimmed_mean&gt; — метод расчёта нормы
 /set_schedule &lt;weekly|daily|hourly&gt; — расписание проверок
+/set_include_shorts &lt;true|false&gt; — учитывать Shorts
+/set_repeat_signals &lt;true|false&gt; — повторные сигналы при росте
+
+<b>Администрирование:</b>
+/logs [N] — последние N строк лога (по умолч. 30)
 
 <b>Прочее:</b>
 /start — приветствие
