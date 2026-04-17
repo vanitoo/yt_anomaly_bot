@@ -93,7 +93,15 @@ async def run_async_migrations() -> None:
 
 
 def run_migrations_online() -> None:
-    asyncio.run(run_async_migrations())
+    """Run async migrations using the current or new event loop."""
+    try:
+        # Try to get the running event loop
+        loop = asyncio.get_running_loop()
+        # If we're inside an existing loop, schedule migrations as a task
+        asyncio.ensure_future(run_async_migrations())
+    except RuntimeError:
+        # No running loop, create a new one
+        asyncio.run(run_async_migrations())
 
 
 # ---------------------------------------------------------------------------

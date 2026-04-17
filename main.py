@@ -19,8 +19,6 @@ import os
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
-from alembic import command as alembic_command
-from alembic.config import Config as AlembicConfig
 
 from bot.config import get_settings, setup_logging
 from bot.handlers import register_all_handlers
@@ -36,14 +34,36 @@ def run_migrations() -> None:
     Uses alembic.ini from the project root. DATABASE_URL is read
     from the environment (already loaded by pydantic-settings).
     """
+    import subprocess
+    import sys
+
     ini_path = os.path.join(os.path.dirname(__file__), "alembic.ini")
-    alembic_cfg = AlembicConfig(ini_path)
-    # Override URL from environment so .env is the single source of truth
-    alembic_cfg.set_main_option(
-        "sqlalchemy.url", get_settings().database_url
+    logger.info("Applying Alembic migrations...")
+    
+    # Run alembic upgrade via subprocess to avoid event loop conflicts
+    result = subprocess.run(
+        [sys.executable, "-c", f"""
+import asyncio
+import os
+from alembic import command as alembic_command
+from alembic.config import Config as AlembicConfig
+
+# Set DATABASE_URL from environment
+os.environ['DATABASE_URL'] = '{get_settings().database_url}'
+
+alembic_cfg = AlembicConfig('{ini_path}')
+alembic_command.upgrade(alembic_cfg, 'head')
+print('Alembic migrations applied successfully.')
+        """],
+        capture_output=True,
+        text=True,
     )
-    alembic_command.upgrade(alembic_cfg, "head")
-    logger.info("Alembic migrations applied (up to head).")
+    
+    if result.returncode != 0:
+        logger.error("Alembic migration failed: %s", result.stderr)
+        raise RuntimeError(f"Alembic migration failed: {result.stderr}")
+    
+    logger.info("Alembic migrations applied successfully.")
 
 
 async def main() -> None:

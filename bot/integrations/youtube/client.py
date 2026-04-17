@@ -19,12 +19,6 @@ from typing import List, Optional
 
 import httpx
 
-from bot.services.metrics import (
-    track_api_request,
-    track_cache_hit,
-    track_cache_miss,
-)
-
 logger = logging.getLogger(__name__)
 
 YOUTUBE_API_BASE = "https://www.googleapis.com/youtube/v3"
@@ -474,10 +468,20 @@ class YouTubeClient:
         cached_response = self._get_from_cache(cache_key)
         if cached_response is not None:
             logger.debug("Cache hit for %s", endpoint)
-            track_cache_hit()
+            # Track cache hit lazily to avoid circular import
+            try:
+                from bot.services.metrics import track_cache_hit
+                track_cache_hit()
+            except ImportError:
+                pass
             return cached_response
 
-        track_cache_miss()
+        # Track cache miss lazily
+        try:
+            from bot.services.metrics import track_cache_miss
+            track_cache_miss()
+        except ImportError:
+            pass
         
         # Make API request
         params["key"] = self._api_key
@@ -485,10 +489,20 @@ class YouTubeClient:
         try:
             response = await self._http.get(url, params=params)
         except httpx.TimeoutException as exc:
-            track_api_request(endpoint, success=False)
+            # Track API error lazily
+            try:
+                from bot.services.metrics import track_api_request
+                track_api_request(endpoint, success=False)
+            except ImportError:
+                pass
             raise YouTubeAPIError(f"YouTube API timeout: {exc}") from exc
         except httpx.RequestError as exc:
-            track_api_request(endpoint, success=False)
+            # Track API error lazily
+            try:
+                from bot.services.metrics import track_api_request
+                track_api_request(endpoint, success=False)
+            except ImportError:
+                pass
             raise YouTubeAPIError(f"YouTube API request error: {exc}") from exc
 
         if response.status_code == 403:
@@ -496,25 +510,49 @@ class YouTubeClient:
             errors = body.get("error", {}).get("errors", [{}])
             reason = errors[0].get("reason", "unknown")
             if reason == "quotaExceeded":
-                track_api_request(endpoint, success=False)
+                # Track API error lazily
+                try:
+                    from bot.services.metrics import track_api_request
+                    track_api_request(endpoint, success=False)
+                except ImportError:
+                    pass
                 raise YouTubeAPIError("YouTube API quota exceeded. Try again tomorrow.")
-            track_api_request(endpoint, success=False)
+            # Track API error lazily
+            try:
+                from bot.services.metrics import track_api_request
+                track_api_request(endpoint, success=False)
+            except ImportError:
+                pass
             raise YouTubeAPIError(f"YouTube API 403 forbidden: {reason}")
 
         if response.status_code == 404:
-            track_api_request(endpoint, success=False)
+            # Track API error lazily
+            try:
+                from bot.services.metrics import track_api_request
+                track_api_request(endpoint, success=False)
+            except ImportError:
+                pass
             raise ChannelNotFoundError("Resource not found (404)")
 
         if not response.is_success:
-            track_api_request(endpoint, success=False)
+            # Track API error lazily
+            try:
+                from bot.services.metrics import track_api_request
+                track_api_request(endpoint, success=False)
+            except ImportError:
+                pass
             raise YouTubeAPIError(
                 f"YouTube API error {response.status_code}: {response.text[:200]}"
             )
 
         result = response.json()
         
-        # Track successful request
-        track_api_request(endpoint, success=True)
+        # Track successful request lazily
+        try:
+            from bot.services.metrics import track_api_request
+            track_api_request(endpoint, success=True)
+        except ImportError:
+            pass
         
         # Save to cache
         self._save_to_cache(cache_key, result)
