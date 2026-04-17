@@ -25,6 +25,11 @@ from bot.models.orm import Channel, Video
 from bot.repositories.channel_repo import ChannelRepository
 from bot.repositories.detection_repo import DetectionRepository
 from bot.repositories.video_repo import VideoRepository
+from bot.services.metrics import (
+    metrics,
+    METRIC_CHANNELS_TOTAL,
+    track_notification,
+)
 from bot.services.notification_service import NotificationService
 from bot.services.settings_service import SettingsService
 
@@ -71,6 +76,10 @@ class AnalysisRunner:
             "repeat_signals", default=False
         )
         channels = await self._channel_repo.get_active()
+        
+        # Update channels gauge
+        metrics.set_gauge(METRIC_CHANNELS_TOTAL, len(channels))
+        
         logger.info("Active channels: %d", len(channels))
 
         total_sent = 0
@@ -210,6 +219,7 @@ class AnalysisRunner:
                 )
                 await self._detection_repo.mark_sent(detection.id, msg_id)
                 sent_count += 1
+                track_notification()
                 logger.info(
                     "Sent %snotification for %r (ratio=%.2fx)",
                     "repeat " if is_repeat else "",

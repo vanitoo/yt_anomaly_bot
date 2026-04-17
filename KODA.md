@@ -204,9 +204,125 @@ python_functions = test_*
 
 ---
 
+## CI/CD
+
+Проект использует GitHub Actions для автоматического тестирования и сборки:
+
+### Конфигурация
+
+Файл `.github/workflows/ci.yml` содержит pipeline с тремя этапами:
+
+1. **Тестирование** — запуск pytest на Python 3.10, 3.11, 3.12 (Ubuntu, Windows)
+2. **Linting** — проверка кода через flake8 и black
+3. **Docker Build** — сборка и публикация образа на Docker Hub (только при push в main)
+
+### Локальный запуск тестов
+
+```bash
+pytest -v --cov=bot --cov-report=html
+```
+
+### Просмотр статусов CI
+
+Статусы pull request'ов и коммитов отображаются на вкладке **Actions** в GitHub.
+
+---
+
+## Кэширование YouTube API
+
+Для экономии квоты YouTube API реализовано двухуровневое кэширование:
+
+### LRU-кэш настроек
+
+Конфигурация загружается один раз и кэшируется через `lru_cache`.
+
+### SQLite-кэш ответов API
+
+- **Расположение**: `data/youtube_cache.db`
+- **TTL**: 12 часов
+- **Ключ**: SHA-256 хэш от endpoint + параметры запроса
+
+Кэш автоматически очищается от устаревших записей.
+
+### Отключение кэша
+
+```python
+client = YouTubeClient(api_key="...", cache_enabled=False)
+```
+
+---
+
+## Метрики и мониторинг
+
+В проекте реализована система сбора метрик в `bot/services/metrics.py`:
+
+### Типы метрик
+
+| Метрика | Тип | Описание |
+|---------|-----|----------|
+| `youtube_api_requests_total` | Counter | Количество запросов к YouTube API |
+| `youtube_api_errors_total` | Counter | Количество ошибок API |
+| `youtube_cache_hits_total` | Counter | Попадания в кэш |
+| `youtube_cache_misses_total` | Counter | Промахи кэша |
+| `anomaly_detections_total` | Counter | Обнаруженные аномалии |
+| `channels_total` | Gauge | Количество активных каналов |
+| `videos_analyzed_total` | Counter | Проанализированные видео |
+| `notifications_sent_total` | Counter | Отправленные уведомления |
+| `db_queries_total` | Counter | Выполненные DB-запросы |
+| `*_duration_seconds` | Histogram | Время выполнения операций |
+
+### Команда просмотра метрик
+
+```
+/metics
+```
+
+Доступна только администраторам. Показывает текущую статистику в удобном формате.
+
+### Экспорт в Prometheus
+
+Метрики можно получить в формате Prometheus через:
+
+```python
+from bot.services.metrics import metrics
+print(metrics.render_prometheus_format())
+```
+
+---
+
+## Миграции базы данных (Alembic)
+
+Проект использует Alembic для управления миграциями БД:
+
+### Команды
+
+```bash
+# Создать новую миграцию
+alembic revision --autogenerate -m "Описание изменений"
+
+# Применить миграции
+alembic upgrade head
+
+# Откатить одну миграцию
+alembic downgrade -1
+
+# Показать текущее состояние
+alembic current
+```
+
+### Конфигурация
+
+- `alembic.ini` — основной конфиг
+- `migrations/env.py` — настройка окружения
+- `migrations/versions/` — версияльные миграции
+
+Поддерживает async SQLAlchemy (aiosqlite / asyncpg).
+
+---
+
 ## TODO
 
-- Добавить CI/CD для автоматического тестирования
-- Рассмотреть использование Alembic для миграций БД
-- Добавить метрики и мониторинг
-- Реализовать кэширование ответов YouTube API
+- Добавить CI/CD для автоматического тестирования ✅
+- Рассмотреть использование Alembic для миграций БД ✅
+- Добавить метрики и мониторинг ✅
+- Реализовать кэширование ответов YouTube API ✅

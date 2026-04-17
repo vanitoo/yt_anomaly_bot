@@ -12,6 +12,13 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import List, Optional, Tuple
 
+from bot.services.metrics import (
+    metrics,
+    METRIC_CHANNELS_TOTAL,
+    METRIC_VIDEOS_ANALYZED_TOTAL,
+    track_detection,
+)
+
 logger = logging.getLogger(__name__)
 
 MIN_VIDEOS_FOR_ANALYSIS = 5
@@ -126,6 +133,9 @@ def detect_anomalies(
         )
         return [], None
 
+    # Track videos analyzed
+    metrics.inc_counter(METRIC_VIDEOS_ANALYZED_TOTAL, value=len(mature_videos))
+
     view_counts = [v.view_count for v in baseline_source]
     baseline = _calculate_baseline(view_counts, config.baseline_method)
 
@@ -155,6 +165,8 @@ def detect_anomalies(
             ratio >= config.threshold
             and video.view_count >= config.min_views
         ):
+            # Track detection
+            track_detection(channel_label)
             anomalies.append(
                 AnomalyResult(
                     video=video,

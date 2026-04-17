@@ -6,14 +6,24 @@ Designed to support future fallback layers (yt-dlp, scraping, etc.).
 """
 from __future__ import annotations
 
+import hashlib
+import json
 import logging
 import re
+import sqlite3
+from contextlib import contextmanager
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
 from typing import List, Optional
-from urllib.parse import urlparse, parse_qs
 
 import httpx
+
+from bot.services.metrics import (
+    track_api_request,
+    track_cache_hit,
+    track_cache_miss,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -22,6 +32,10 @@ YOUTUBE_API_BASE = "https://www.googleapis.com/youtube/v3"
 # Shorts are typically <= 60 seconds, but YouTube API doesn't expose an is_short flag directly.
 # We use duration as a heuristic.
 SHORTS_DURATION_THRESHOLD_SECONDS = 61
+
+# Cache configuration
+CACHE_DB_PATH = Path("data/youtube_cache.db")
+CACHE_TTL_HOURS = 12  # Cache valid for 12 hours
 
 
 @dataclass
@@ -59,12 +73,106 @@ class YouTubeClient:
     All methods raise YouTubeAPIError on non-recoverable API errors.
     """
 
-    def __init__(self, api_key: str, timeout: float = 30.0) -> None:
+    def __init__(self, api_key: str, timeout: float = 30.0, cache_enabled: bool = True) -> None:
         self._api_key = api_key
         self._http = httpx.AsyncClient(timeout=timeout)
+        self._cache_enabled = cache_enabled
+        self._init_cache_db()
+
+    def _init_cache_db(self) -> None:
+        """Initialize SQLite cache database."""
+        if not self._cache_enabled:
+            return
+        CACHE_DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+        with self._get_db_connection() as conn:
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS api_cache (
+                    cache_key TEXT PRIMARY KEY,
+                    response TEXT NOT NULL,
+                    timestamp INTEGER NOT NULL
+                )
+            """)
+            conn.execute("""
+                CREATE INDEX IF NOT EXISTS idx_timestamp ON api_cache(timestamp)
+            """)
+            conn.commit()
+
+    @contextmanager
+    def _get_db_connection(self):
+        """Get a database connection context manager."""
+        conn = sqlite3.connect(CACHE_DB_PATH, timeout=10)
+        try:
+            yield conn
+        finally:
+            conn.close()
+
+    def _get_cache_key(self, endpoint: str, params: dict) -> str:
+        """Generate a cache key from endpoint and parameters."""
+        key_data = f"{endpoint}:{json.dumps(params, sort_keys=True)}"
+        return hashlib.sha256(key_data.encode()).hexdigest()
+
+    def _is_cache_valid(self, timestamp: int) -> bool:
+        """Check if cached entry is still valid based on TTL."""
+        age_hours = (datetime.now(timezone.utc) - datetime.fromtimestamp(timestamp, timezone.utc)).total_seconds() / 3600
+        return age_hours < CACHE_TTL_HOURS
+
+    def _get_from_cache(self, cache_key: str) -> Optional[dict]:
+        """Retrieve cached response if still valid."""
+        if not self._cache_enabled:
+            return None
+        try:
+            with self._get_db_connection() as conn:
+                cursor = conn.execute(
+                    "SELECT response, timestamp FROM api_cache WHERE cache_key = ?",
+                    (cache_key,)
+                )
+                row = cursor.fetchone()
+                if row and self._is_cache_valid(row[1]):
+                    return json.loads(row[0])
+                elif row:
+                    # Clean up expired entry
+                    conn.execute("DELETE FROM api_cache WHERE cache_key = ?", (cache_key,))
+                    conn.commit()
+        except Exception as e:
+            logger.warning("Cache read error: %s", e)
+        return None
+
+    def _save_to_cache(self, cache_key: str, response: dict) -> None:
+        """Save response to cache."""
+        if not self._cache_enabled:
+            return
+        try:
+            with self._get_db_connection() as conn:
+                conn.execute(
+                    """INSERT OR REPLACE INTO api_cache (cache_key, response, timestamp)
+                       VALUES (?, ?, ?)""",
+                    (cache_key, json.dumps(response), int(datetime.now(timezone.utc).timestamp()))
+                )
+                conn.commit()
+        except Exception as e:
+            logger.warning("Cache write error: %s", e)
 
     async def close(self) -> None:
         await self._http.aclose()
+
+    def clear_expired_cache(self) -> int:
+        """Remove expired entries from cache. Returns count of deleted entries."""
+        if not self._cache_enabled:
+            return 0
+        try:
+            cutoff_timestamp = int(
+                (datetime.now(timezone.utc) - timedelta(hours=CACHE_TTL_HOURS)).timestamp()
+            )
+            with self._get_db_connection() as conn:
+                cursor = conn.execute(
+                    "DELETE FROM api_cache WHERE timestamp < ?",
+                    (cutoff_timestamp,)
+                )
+                conn.commit()
+                return cursor.rowcount
+        except Exception as e:
+            logger.warning("Cache cleanup error: %s", e)
+            return 0
 
     # ------------------------------------------------------------------
     # Channel resolution
@@ -361,13 +469,26 @@ class YouTubeClient:
     # ------------------------------------------------------------------
 
     async def _get(self, endpoint: str, params: dict) -> dict:
+        # Check cache first
+        cache_key = self._get_cache_key(endpoint, params)
+        cached_response = self._get_from_cache(cache_key)
+        if cached_response is not None:
+            logger.debug("Cache hit for %s", endpoint)
+            track_cache_hit()
+            return cached_response
+
+        track_cache_miss()
+        
+        # Make API request
         params["key"] = self._api_key
         url = f"{YOUTUBE_API_BASE}/{endpoint}"
         try:
             response = await self._http.get(url, params=params)
         except httpx.TimeoutException as exc:
+            track_api_request(endpoint, success=False)
             raise YouTubeAPIError(f"YouTube API timeout: {exc}") from exc
         except httpx.RequestError as exc:
+            track_api_request(endpoint, success=False)
             raise YouTubeAPIError(f"YouTube API request error: {exc}") from exc
 
         if response.status_code == 403:
@@ -375,15 +496,28 @@ class YouTubeClient:
             errors = body.get("error", {}).get("errors", [{}])
             reason = errors[0].get("reason", "unknown")
             if reason == "quotaExceeded":
+                track_api_request(endpoint, success=False)
                 raise YouTubeAPIError("YouTube API quota exceeded. Try again tomorrow.")
+            track_api_request(endpoint, success=False)
             raise YouTubeAPIError(f"YouTube API 403 forbidden: {reason}")
 
         if response.status_code == 404:
+            track_api_request(endpoint, success=False)
             raise ChannelNotFoundError("Resource not found (404)")
 
         if not response.is_success:
+            track_api_request(endpoint, success=False)
             raise YouTubeAPIError(
                 f"YouTube API error {response.status_code}: {response.text[:200]}"
             )
 
-        return response.json()
+        result = response.json()
+        
+        # Track successful request
+        track_api_request(endpoint, success=True)
+        
+        # Save to cache
+        self._save_to_cache(cache_key, result)
+        logger.debug("Cached response for %s", endpoint)
+        
+        return result

@@ -14,6 +14,7 @@ from aiogram.types import Message
 from bot.config.settings import get_settings
 from bot.handlers.filters import IsAdmin
 from bot.models.database import get_session
+from bot.services.metrics import metrics
 from bot.services.settings_service import SettingsService
 
 logger = logging.getLogger(__name__)
@@ -214,6 +215,47 @@ async def cmd_set_repeat_signals(message: Message) -> None:
     await _save_setting(message, "repeat_signals", normalized)
     label = "включены ✅" if normalized == "true" else "выключены ⏸"
     await message.answer(f"🔁 Повторные сигналы <b>{label}</b>", parse_mode="HTML")
+
+
+@router.message(Command("metrics"), IsAdmin())
+async def cmd_metrics(message: Message) -> None:
+    """Show current metrics and statistics."""
+    all_metrics = metrics.get_all_metrics()
+    
+    lines = ["📊 <b>Метрики бота</b>\n"]
+    
+    # Counters
+    if all_metrics["counters"]:
+        lines.append("📈 <b>Счётчики:</b>")
+        for name, value in sorted(all_metrics["counters"].items()):
+            short_name = name.split("_total")[0].replace("youtube_", "").replace("anomaly_", "").replace("db_", "")
+            lines.append(f"  • {short_name}: <b>{value}</b>")
+        lines.append("")
+    
+    # Gauges
+    if all_metrics["gauges"]:
+        lines.append("📊 <b>Гейджи:</b>")
+        for name, value in sorted(all_metrics["gauges"].items()):
+            short_name = name.replace("_total", "").replace("_channels", "")
+            lines.append(f"  • {short_name}: <b>{value}</b>")
+        lines.append("")
+    
+    # Histograms
+    if all_metrics["histograms"]:
+        lines.append("⏱ <b>Время операций:</b>")
+        for name, stats in sorted(all_metrics["histograms"].items()):
+            if stats["count"] > 0:
+                short_name = name.replace("_duration_seconds", "").replace("youtube_", "").replace("db_", "")
+                lines.append(f"  • {short_name}:")
+                lines.append(f"      средний: <b>{stats['avg']:.3f}s</b>")
+                lines.append(f"      макс: <b>{stats['max']:.3f}s</b>")
+                lines.append(f"      запросов: <b>{stats['count']}</b>")
+        lines.append("")
+    
+    if not any([all_metrics["counters"], all_metrics["gauges"], all_metrics["histograms"]]):
+        lines.append("Нет данных о метриках. Запустите анализ для сбора статистики.")
+    
+    await message.answer("\n".join(lines), parse_mode="HTML")
 
 
 # ---------------------------------------------------------------------------
