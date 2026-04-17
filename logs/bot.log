@@ -2154,3 +2154,19 @@ CREATE TABLE channels (
 2026-04-17 13:19:06 | INFO     | __main__ | Scheduler started.
 2026-04-17 13:19:06 | INFO     | __main__ | Bot is running. Waiting for updates...
 2026-04-17 13:19:06 | INFO     | aiogram.dispatcher | Start polling
+2026-04-17 13:19:27 | INFO     | aiogram.dispatcher | Polling stopped
+2026-04-17 13:19:27 | INFO     | __main__ | Bot stopped.
+2026-04-17 13:19:27 | INFO     | apscheduler.scheduler | Scheduler has been shut down
+2026-04-17 13:19:31 | INFO     | __main__ | Starting YouTube Anomaly Bot
+2026-04-17 13:19:31 | INFO     | __main__ | Database: sqlite+aiosqlite:///./data/bot.db
+2026-04-17 13:19:31 | INFO     | __main__ | Admin IDs: [319415227]
+2026-04-17 13:19:31 | INFO     | __main__ | Schedule: weekly
+2026-04-17 13:19:31 | INFO     | __main__ | Applying Alembic migrations...
+2026-04-17 13:19:32 | INFO     | __main__ | Alembic migrations applied successfully.
+2026-04-17 13:19:32 | INFO     | bot.jobs.scheduler | Scheduler: weekly (Monday 09:00 UTC)
+2026-04-17 13:19:32 | INFO     | apscheduler.scheduler | Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2026-04-17 13:19:32 | INFO     | apscheduler.scheduler | Added job "_run_analysis_job" to job store "default"
+2026-04-17 13:19:32 | INFO     | apscheduler.scheduler | Scheduler started
+2026-04-17 13:19:32 | INFO     | __main__ | Scheduler started.
+2026-04-17 13:19:32 | INFO     | __main__ | Bot is running. Waiting for updates...
+2026-04-17 13:19:32 | INFO     | aiogram.dispatcher | Start polling
