@@ -55,7 +55,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "5433:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ytbot} -d ${POSTGRES_DB:-yt_anomaly_bot}"]
       interval: 10s

@@ -224,7 +224,7 @@ pip install asyncpg
 
 В `.env`:
 ```
-DATABASE_URL=postgresql+asyncpg://user:password@localhost:5432/yt_anomaly_bot
+DATABASE_URL=postgresql+asyncpg://user:password@localhost:5433/yt_anomaly_bot
 ```
 
 Затем:
