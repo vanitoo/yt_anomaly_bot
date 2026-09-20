@@ -31,32 +31,27 @@ def run_migrations() -> None:
     """
     Run Alembic migrations synchronously at startup.
 
-    Uses alembic.ini from the project root. DATABASE_URL is read
-    from the environment (already loaded by pydantic-settings).
+    Uses alembic.ini from the project root. DATABASE_URL is passed to the
+    child process through the environment, so Windows paths (backslashes)
+    are never embedded into generated source code.
     """
     import subprocess
     import sys
 
-    ini_path = os.path.join(os.path.dirname(__file__), "alembic.ini")
+    project_root = os.path.dirname(os.path.abspath(__file__))
+    ini_path = os.path.join(project_root, "alembic.ini")
     logger.info("Applying Alembic migrations...")
-    
+
+    env = os.environ.copy()
+    env["DATABASE_URL"] = get_settings().database_url
+
     # Run alembic upgrade via subprocess to avoid event loop conflicts
     result = subprocess.run(
-        [sys.executable, "-c", f"""
-import asyncio
-import os
-from alembic import command as alembic_command
-from alembic.config import Config as AlembicConfig
-
-# Set DATABASE_URL from environment
-os.environ['DATABASE_URL'] = '{get_settings().database_url}'
-
-alembic_cfg = AlembicConfig('{ini_path}')
-alembic_command.upgrade(alembic_cfg, 'head')
-print('Alembic migrations applied successfully.')
-        """],
+        [sys.executable, "-m", "alembic", "-c", ini_path, "upgrade", "head"],
+        cwd=project_root,
         capture_output=True,
         text=True,
+        env=env,
     )
     
     if result.returncode != 0:
