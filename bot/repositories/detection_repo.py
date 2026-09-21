@@ -1,10 +1,8 @@
-"""
-Repositories for Detection and Setting models.
-"""
+"""Repositories for Detection and Setting models."""
 from __future__ import annotations
 
 import logging
-from typing import List, Optional
+from typing import Optional
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -19,19 +17,29 @@ class DetectionRepository:
         self._session = session
 
     async def was_video_sent(self, video_id: int) -> bool:
-        """Return True if this video was already sent as an anomaly signal."""
         result = await self._session.execute(
-            select(Detection)
+            select(Detection.id)
             .where(Detection.video_id == video_id)
             .where(Detection.sent_to_chat.is_(True))
+            .limit(1)
+        )
+        return result.scalar_one_or_none() is not None
+
+    async def was_video_detected(self, video_id: int) -> bool:
+        """Return True when any successful GUI/Telegram detection exists."""
+        result = await self._session.execute(
+            select(Detection.id)
+            .where(Detection.video_id == video_id)
+            .where(Detection.status.in_(("detected", "sent")))
+            .limit(1)
         )
         return result.scalar_one_or_none() is not None
 
     async def get_max_ratio_for_video(self, video_id: int) -> Optional[float]:
-        """Return the highest anomaly_ratio previously recorded for this video."""
         result = await self._session.execute(
             select(Detection.anomaly_ratio)
             .where(Detection.video_id == video_id)
+            .where(Detection.status.in_(("detected", "sent")))
             .order_by(Detection.anomaly_ratio.desc())
             .limit(1)
         )

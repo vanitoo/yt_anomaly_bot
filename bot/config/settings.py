@@ -1,6 +1,4 @@
-"""
-Application settings loaded from environment variables.
-"""
+"""Application settings loaded from environment variables."""
 from __future__ import annotations
 
 from functools import lru_cache
@@ -19,12 +17,22 @@ class Settings(BaseSettings):
     )
 
     # --- Telegram ---
-    telegram_bot_token: str
-    telegram_chat_id: str
-    admin_user_ids: str = ""  # comma-separated list of Telegram user IDs
+    # Optional so the standalone web GUI can run without Telegram configured.
+    telegram_bot_token: str = ""
+    telegram_chat_id: str = ""
+    admin_user_ids: str = ""
 
     # --- YouTube ---
     youtube_api_key: str
+    youtube_cache_ttl_minutes: int = 15
+
+    # --- Proxy ---
+    # PROXY accepts comma/semicolon/newline separated proxy URLs.
+    proxy: str = ""
+    proxy_mode: str = "failover"
+    proxy_healthcheck_url: str = "https://www.youtube.com/generate_204"
+    proxy_healthcheck_timeout: float = 8.0
+    proxy_healthcheck_interval: float = 60.0
 
     # --- Database ---
     database_url: str = "sqlite+aiosqlite:///./data/bot.db"
@@ -34,12 +42,17 @@ class Settings(BaseSettings):
     default_min_views: int = 5000
     default_min_age_days: int = 7
     default_period_days: int = 90
-    default_baseline_method: str = "median"  # median | trimmed_mean
+    default_baseline_method: str = "median"
     default_include_shorts: bool = False
-    default_include_fresh_in_baseline: bool = False  # include <7d videos in baseline
+    default_include_fresh_in_baseline: bool = False
 
     # --- Scheduler ---
-    schedule_interval: str = "weekly"  # weekly | daily | hourly
+    schedule_interval: str = "weekly"
+
+    # --- Standalone web GUI ---
+    web_auto_scan: bool = True
+    web_poll_interval_minutes: int = 60
+    web_scan_on_start: bool = True
 
     # --- Logging ---
     log_level: str = "INFO"
@@ -48,7 +61,7 @@ class Settings(BaseSettings):
     @field_validator("admin_user_ids", mode="before")
     @classmethod
     def strip_admin_ids(cls, v: str) -> str:
-        return v.strip()
+        return (v or "").strip()
 
     @property
     def admin_ids_list(self) -> List[int]:

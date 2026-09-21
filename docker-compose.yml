@@ -1,16 +1,4 @@
-# ============================================================
-# YouTube Anomaly Bot — Docker Compose
-# ============================================================
-# Usage:
-#   docker-compose up -d              # Start bot only (SQLite)
-#   docker-compose up -d postgres     # Start with PostgreSQL
-#   docker-compose --profile web up   # Start with web panel
-# ============================================================
-
 services:
-  # ------------------------------
-  # Telegram Bot (default)
-  # ------------------------------
   bot:
     build:
       context: .
@@ -18,40 +6,38 @@ services:
       target: production
     container_name: yt-anomaly-bot
     restart: unless-stopped
-    environment:
-      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
-      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
-      - ADMIN_USER_IDS=${ADMIN_USER_IDS}
-      - YOUTUBE_API_KEY=${YOUTUBE_API_KEY}
-      - DATABASE_URL=${DATABASE_URL:-sqlite+aiosqlite:///./data/bot.db}
-      - DEFAULT_THRESHOLD=${DEFAULT_THRESHOLD:-1.8}
-      - DEFAULT_MIN_VIEWS=${DEFAULT_MIN_VIEWS:-5000}
-      - DEFAULT_MIN_AGE_DAYS=${DEFAULT_MIN_AGE_DAYS:-7}
-      - DEFAULT_PERIOD_DAYS=${DEFAULT_PERIOD_DAYS:-90}
-      - DEFAULT_BASELINE_METHOD=${DEFAULT_BASELINE_METHOD:-median}
-      - SCHEDULE_INTERVAL=${SCHEDULE_INTERVAL:-weekly}
-      - LOG_LEVEL=${LOG_LEVEL:-INFO}
-      - LOG_FILE=${LOG_FILE:-logs/bot.log}
+    profiles: ["telegram"]
+    env_file: .env
     volumes:
       - ./data:/app/data
       - ./logs:/app/logs
-    networks:
-      - bot-network
-    depends_on:
-      postgres:
-        condition: service_healthy
+    networks: [bot-network]
 
-  # ------------------------------
-  # PostgreSQL Database (optional)
-  # ------------------------------
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: yt-anomaly-web
+    restart: unless-stopped
+    command: ["python", "run_web.py", "--host", "0.0.0.0", "--port", "8000"]
+    env_file: .env
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    ports:
+      - "8000:8000"
+    networks: [bot-network]
+
   postgres:
     image: postgres:16-alpine
     container_name: yt-anomaly-postgres
     restart: unless-stopped
+    profiles: ["postgres"]
     environment:
-      - POSTGRES_USER=${POSTGRES_USER:-ytbot}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-changeme}
-      - POSTGRES_DB=${POSTGRES_DB:-yt_anomaly_bot}
+      POSTGRES_USER: ${POSTGRES_USER:-ytbot}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      POSTGRES_DB: ${POSTGRES_DB:-yt_anomaly_bot}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
@@ -61,43 +47,10 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    networks:
-      - bot-network
-
-  # ------------------------------
-  # Web Panel (optional, via profile)
-  # ------------------------------
-  web:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: production
-    container_name: yt-anomaly-web
-    restart: unless-stopped
-    command: ["python", "run_web.py"]
-    profiles:
-      - web
-    environment:
-      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
-      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
-      - ADMIN_USER_IDS=${ADMIN_USER_IDS}
-      - YOUTUBE_API_KEY=${YOUTUBE_API_KEY}
-      - DATABASE_URL=${DATABASE_URL:-sqlite+aiosqlite:///./data/bot.db}
-      - LOG_LEVEL=${LOG_LEVEL:-INFO}
-    volumes:
-      - ./data:/app/data
-      - ./logs:/app/logs
-    ports:
-      - "8000:8000"
-    networks:
-      - bot-network
-    depends_on:
-      postgres:
-        condition: service_healthy
+    networks: [bot-network]
 
 networks:
   bot-network:
     driver: bridge
-
 volumes:
   postgres_data:
